@@ -13,17 +13,14 @@
       @case ('ok') {
         @if (state.kind === 'ok') {
           <p class="status status--ok">
-            API <strong>{{ state.data.service }}</strong>
-            v{{ state.data.version }} —
+            API <strong>{{ state.data.service }}</strong> v{{ state.data.version }} —
             <span class="status__pill">{{ state.data.status }}</span>
           </p>
         }
       }
       @case ('error') {
         @if (state.kind === 'error') {
-          <p class="status status--error">
-            Couldn't reach the API: {{ state.message }}
-          </p>
+          <p class="status status--error">Couldn't reach the API: {{ state.message }}</p>
         }
       }
     }

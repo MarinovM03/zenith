@@ -13,7 +13,9 @@ describe('App', () => {
   }
 
   it('renders the title', async () => {
-    configure({ health: () => of<HealthResponse>({ status: 'ok', service: 'acca-server', version: '0.1.0' }) });
+    configure({
+      health: () => of<HealthResponse>({ status: 'ok', service: 'acca-server', version: '0.1.0' }),
+    });
 
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
@@ -23,7 +25,9 @@ describe('App', () => {
   });
 
   it('shows the API status when /health succeeds', async () => {
-    configure({ health: () => of<HealthResponse>({ status: 'ok', service: 'acca-server', version: '0.1.0' }) });
+    configure({
+      health: () => of<HealthResponse>({ status: 'ok', service: 'acca-server', version: '0.1.0' }),
+    });
 
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
