@@ -1,17 +1,3 @@
-# =============================================================================
-# Acca — Local development dependencies
-# =============================================================================
-# Per CLAUDE.md: we do NOT dockerise the app code during development.
-# Only Postgres and Redis run here. The backend and frontend run on the host.
-#
-# Usage (from repo root):
-#   docker compose up -d        # start Postgres + Redis in the background
-#   docker compose ps           # check status
-#   docker compose logs -f      # tail logs
-#   docker compose down         # stop (keeps volumes)
-#   docker compose down -v      # stop and wipe data
-# =============================================================================
-
 services:
   postgres:
     image: postgres:16-alpine
