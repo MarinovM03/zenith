@@ -28,6 +28,7 @@ class Settings(BaseSettings):
     jwt_algorithm: str = Field(default="HS256")
     access_token_expire_minutes: int = Field(default=15)
     refresh_token_expire_days: int = Field(default=7)
+    cookie_secure: bool = Field(default=False)
 
     cors_origins: str = Field(default="http://localhost:4200")
 

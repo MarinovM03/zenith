@@ -1,31 +1,27 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Router, RouterLink, RouterOutlet } from '@angular/router';
 
-import { ApiService, HealthResponse } from './core/services/api.service';
-
-type HealthState =
-  | { kind: 'loading' }
-  | { kind: 'ok'; data: HealthResponse }
-  | { kind: 'error'; message: string };
+import { AuthService } from './core/services/auth.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.html',
   styleUrl: './app.css',
+  imports: [RouterOutlet, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class App implements OnInit {
-  private readonly api = inject(ApiService);
+export class App {
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
 
-  protected readonly health = signal<HealthState>({ kind: 'loading' });
+  protected readonly user = this.auth.user;
+  protected readonly status = this.auth.status;
+  protected readonly isAuthenticated = this.auth.isAuthenticated;
 
-  ngOnInit(): void {
-    this.api.health().subscribe({
-      next: (data) => this.health.set({ kind: 'ok', data }),
-      error: (err: unknown) =>
-        this.health.set({
-          kind: 'error',
-          message: err instanceof Error ? err.message : 'Unknown error',
-        }),
+  logout(): void {
+    this.auth.logout().subscribe({
+      next: () => this.router.navigateByUrl('/login'),
+      error: () => this.router.navigateByUrl('/login'),
     });
   }
 }
