@@ -2,9 +2,11 @@ import logging
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 
 from app.core.config import get_settings
-from app.routers import health
+from app.routers import auth, health
 
 
 def configure_logging(level: str) -> None:
@@ -23,6 +25,9 @@ def create_app() -> FastAPI:
         version="0.1.0",
     )
 
+    app.state.limiter = auth.limiter
+    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins_list,
@@ -32,6 +37,7 @@ def create_app() -> FastAPI:
     )
 
     app.include_router(health.router)
+    app.include_router(auth.router)
 
     logging.getLogger(__name__).info(
         "Acca API started in %s mode (CORS origins: %s)",
