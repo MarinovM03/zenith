@@ -55,9 +55,11 @@ export class Fixtures implements OnInit {
     this.load();
   }
 
-  onLeagueChange(event: Event): void {
-    this.selectedLeague.set(Number((event.target as HTMLSelectElement).value));
-    this.load();
+  selectLeague(id: number): void {
+    if (id !== this.selectedLeague()) {
+      this.selectedLeague.set(id);
+      this.load();
+    }
   }
 
   onDateChange(event: Event): void {

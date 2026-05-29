@@ -1,21 +1,24 @@
 <main class="fixtures">
   <header class="fixtures__header">
     <h1>{{ leagueName() }}</h1>
-    <div class="fixtures__controls">
-      <label class="fixtures__control">
-        <span>League</span>
-        <select [value]="selectedLeague()" (change)="onLeagueChange($event)">
-          @for (league of leagues; track league.id) {
-            <option [value]="league.id">{{ league.name }}</option>
-          }
-        </select>
-      </label>
-      <label class="fixtures__control">
-        <span>Date</span>
-        <input type="date" [value]="selectedDate()" (change)="onDateChange($event)" />
-      </label>
-    </div>
+    <label class="fixtures__control">
+      <span>Date</span>
+      <input type="date" [value]="selectedDate()" (change)="onDateChange($event)" />
+    </label>
   </header>
+
+  <nav class="league-tabs" aria-label="Leagues">
+    @for (league of leagues; track league.id) {
+      <button
+        type="button"
+        class="league-tabs__tab"
+        [class.league-tabs__tab--active]="league.id === selectedLeague()"
+        (click)="selectLeague(league.id)"
+      >
+        {{ league.name }}
+      </button>
+    }
+  </nav>
 
   @let current = state();
   @switch (current.kind) {

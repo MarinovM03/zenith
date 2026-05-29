@@ -17,11 +17,6 @@
   font-size: 1.75rem;
 }
 
-.fixtures__controls {
-  display: flex;
-  gap: var(--space-3);
-}
-
 .fixtures__control {
   display: flex;
   flex-direction: column;
@@ -30,7 +25,6 @@
   color: var(--color-text-muted);
 }
 
-.fixtures__control select,
 .fixtures__control input {
   background-color: var(--color-bg);
   border: 1px solid var(--color-border);
@@ -42,10 +36,42 @@
   color-scheme: dark;
 }
 
-.fixtures__control select:focus,
 .fixtures__control input:focus {
   outline: none;
   border-color: var(--color-accent);
+}
+
+.league-tabs {
+  display: flex;
+  gap: var(--space-2);
+  overflow-x: auto;
+  padding-bottom: var(--space-2);
+  margin-bottom: var(--space-6);
+  scrollbar-width: thin;
+}
+
+.league-tabs__tab {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  color: var(--color-text-muted);
+  padding: var(--space-2) var(--space-4);
+  font-family: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.league-tabs__tab:hover {
+  border-color: var(--color-accent);
+  color: var(--color-text);
+}
+
+.league-tabs__tab--active {
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #fff;
 }
 
 .fixtures__status {

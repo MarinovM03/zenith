@@ -62,15 +62,14 @@ describe('Fixtures', () => {
     expect(list).toHaveBeenLastCalledWith(2021, '2025-08-16');
   });
 
-  it('reloads with the chosen competition when the league changes', () => {
+  it('reloads with the chosen competition when a league tab is clicked', () => {
     const list = vi.fn().mockReturnValue(of([FAKE_FIXTURE]));
     configure({ list });
     const fixture = TestBed.createComponent(Fixtures);
     fixture.detectChanges();
 
-    const select: HTMLSelectElement = fixture.nativeElement.querySelector('select');
-    select.value = '2014';
-    select.dispatchEvent(new Event('change'));
+    const tabs = fixture.nativeElement.querySelectorAll('.league-tabs__tab');
+    (tabs[1] as HTMLButtonElement).click();
     fixture.detectChanges();
 
     expect(list).toHaveBeenLastCalledWith(2014, expect.any(String));
