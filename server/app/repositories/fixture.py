@@ -14,7 +14,7 @@ class FixtureRepository:
     async def upsert(
         self,
         *,
-        api_id: int,
+        external_id: int,
         league_id: int,
         home_team_id: int,
         away_team_id: int,
@@ -23,12 +23,12 @@ class FixtureRepository:
         home_goals: int | None,
         away_goals: int | None,
     ) -> Fixture:
-        existing = await self._db.execute(select(Fixture).where(Fixture.api_football_id == api_id))
+        existing = await self._db.execute(select(Fixture).where(Fixture.external_id == external_id))
         fixture = existing.scalar_one_or_none()
 
         if fixture is None:
             fixture = Fixture(
-                api_football_id=api_id,
+                external_id=external_id,
                 league_id=league_id,
                 home_team_id=home_team_id,
                 away_team_id=away_team_id,

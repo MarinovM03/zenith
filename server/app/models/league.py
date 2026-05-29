@@ -10,7 +10,7 @@ class League(Base):
     __tablename__ = "leagues"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    api_football_id: Mapped[int] = mapped_column(unique=True, index=True, nullable=False)
+    external_id: Mapped[int] = mapped_column(unique=True, index=True, nullable=False)
     name: Mapped[str] = mapped_column(String(120), nullable=False)
     country: Mapped[str] = mapped_column(String(80), nullable=False)
     logo_url: Mapped[str | None] = mapped_column(String(500), nullable=True)

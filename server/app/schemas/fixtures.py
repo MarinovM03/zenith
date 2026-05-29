@@ -24,7 +24,7 @@ class FixtureResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
-    api_football_id: int
+    external_id: int
     league: LeagueSummary
     home_team: TeamSummary
     away_team: TeamSummary

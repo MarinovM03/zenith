@@ -21,7 +21,7 @@ class Fixture(Base):
     __tablename__ = "fixtures"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    api_football_id: Mapped[int] = mapped_column(unique=True, index=True, nullable=False)
+    external_id: Mapped[int] = mapped_column(unique=True, index=True, nullable=False)
     league_id: Mapped[int] = mapped_column(ForeignKey("leagues.id"), index=True, nullable=False)
     home_team_id: Mapped[int] = mapped_column(ForeignKey("teams.id"), index=True, nullable=False)
     away_team_id: Mapped[int] = mapped_column(ForeignKey("teams.id"), index=True, nullable=False)

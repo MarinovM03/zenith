@@ -12,21 +12,21 @@ class TeamRepository:
 
     async def upsert_many(self, teams: Iterable[tuple[int, str, str | None]]) -> dict[int, Team]:
         teams_list = list(teams)
-        api_ids = [api_id for api_id, _, _ in teams_list]
+        external_ids = [external_id for external_id, _, _ in teams_list]
 
         existing_rows = await self._db.execute(
-            select(Team).where(Team.api_football_id.in_(api_ids))
+            select(Team).where(Team.external_id.in_(external_ids))
         )
-        by_api_id: dict[int, Team] = {t.api_football_id: t for t in existing_rows.scalars()}
+        by_external_id: dict[int, Team] = {t.external_id: t for t in existing_rows.scalars()}
 
-        for api_id, name, logo_url in teams_list:
-            if api_id in by_api_id:
-                by_api_id[api_id].name = name
-                by_api_id[api_id].logo_url = logo_url
+        for external_id, name, logo_url in teams_list:
+            if external_id in by_external_id:
+                by_external_id[external_id].name = name
+                by_external_id[external_id].logo_url = logo_url
             else:
-                team = Team(api_football_id=api_id, name=name, logo_url=logo_url)
+                team = Team(external_id=external_id, name=name, logo_url=logo_url)
                 self._db.add(team)
-                by_api_id[api_id] = team
+                by_external_id[external_id] = team
 
         await self._db.flush()
-        return by_api_id
+        return by_external_id
