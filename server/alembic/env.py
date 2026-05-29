@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from alembic import context
 from app.core.config import get_settings
 from app.db.session import Base
-from app.models import user  # noqa: F401  -- imported so the model registers with Base.metadata
+from app.models import fixture, league, team, user  # noqa: F401  -- register with Base.metadata
 
 config = context.config
 
