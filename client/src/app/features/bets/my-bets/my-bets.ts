@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@ang
 import { RouterLink } from '@angular/router';
 
 import { Bet, BetLeg, BetsService } from '../../../core/services/bets.service';
+import { Crest } from '../../../shared/crest/crest';
 
 type BetsState = { kind: 'loading' } | { kind: 'loaded'; bets: Bet[] } | { kind: 'error' };
 
@@ -10,7 +11,7 @@ type BetsState = { kind: 'loading' } | { kind: 'loaded'; bets: Bet[] } | { kind:
   selector: 'app-my-bets',
   templateUrl: './my-bets.html',
   styleUrl: './my-bets.css',
-  imports: [DatePipe, RouterLink],
+  imports: [DatePipe, RouterLink, Crest],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MyBets implements OnInit {

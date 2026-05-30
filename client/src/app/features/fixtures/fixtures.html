@@ -38,7 +38,14 @@
           @for (fixture of current.fixtures; track fixture.id) {
             <li class="match">
               <div class="match__row">
-                <span class="match__team match__team--home">{{ fixture.home_team.name }}</span>
+                <span class="match__team match__team--home">
+                  <span class="match__name">{{ fixture.home_team.name }}</span>
+                  <app-crest
+                    [src]="fixture.home_team.logo_url"
+                    [alt]="fixture.home_team.name"
+                    [size]="24"
+                  />
+                </span>
                 <span class="match__score">
                   @if (fixture.status === 'scheduled') {
                     <time class="match__time">{{ fixture.kickoff_at | date: 'HH:mm' }}</time>
@@ -46,7 +53,14 @@
                     {{ fixture.home_goals ?? 0 }} – {{ fixture.away_goals ?? 0 }}
                   }
                 </span>
-                <span class="match__team match__team--away">{{ fixture.away_team.name }}</span>
+                <span class="match__team match__team--away">
+                  <app-crest
+                    [src]="fixture.away_team.logo_url"
+                    [alt]="fixture.away_team.name"
+                    [size]="24"
+                  />
+                  <span class="match__name">{{ fixture.away_team.name }}</span>
+                </span>
                 <span class="match__status match__status--{{ fixture.status }}">
                   {{ fixture.status }}
                 </span>

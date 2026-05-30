@@ -10,6 +10,7 @@ import {
 
 import { BetSlipService, Selection } from '../../core/services/bet-slip.service';
 import { Fixture, FixturesService } from '../../core/services/fixtures.service';
+import { Crest } from '../../shared/crest/crest';
 import { BetSlip } from '../bets/bet-slip/bet-slip';
 
 interface League {
@@ -40,7 +41,7 @@ function todayIso(): string {
   selector: 'app-fixtures',
   templateUrl: './fixtures.html',
   styleUrl: './fixtures.css',
-  imports: [DatePipe, BetSlip],
+  imports: [DatePipe, BetSlip, Crest],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Fixtures implements OnInit {
