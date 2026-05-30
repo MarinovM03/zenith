@@ -1,0 +1,74 @@
+<main class="team">
+  @let current = state();
+  @switch (current.kind) {
+    @case ('loading') {
+      <p class="team__status">Loading team…</p>
+    }
+    @case ('error') {
+      <p class="team__status team__status--error">Couldn't load this team.</p>
+    }
+    @case ('loaded') {
+      @let team = current.team;
+      <header class="team__header">
+        <app-crest [src]="team.crest" [alt]="team.name" [size]="64" />
+        <div class="team__heading">
+          <h1>{{ team.name }}</h1>
+          <dl class="team__facts">
+            @if (team.country) {
+              <div>
+                <dt>Country</dt>
+                <dd>{{ team.country }}</dd>
+              </div>
+            }
+            @if (team.founded) {
+              <div>
+                <dt>Founded</dt>
+                <dd>{{ team.founded }}</dd>
+              </div>
+            }
+            @if (team.venue) {
+              <div>
+                <dt>Stadium</dt>
+                <dd>{{ team.venue }}</dd>
+              </div>
+            }
+            @if (team.coach_name) {
+              <div>
+                <dt>Coach</dt>
+                <dd>{{ team.coach_name }}</dd>
+              </div>
+            }
+            @if (team.club_colors) {
+              <div>
+                <dt>Colours</dt>
+                <dd>{{ team.club_colors }}</dd>
+              </div>
+            }
+          </dl>
+        </div>
+      </header>
+
+      @if (squadGroups().length === 0) {
+        <p class="team__status">No squad information available.</p>
+      } @else {
+        <section class="squad">
+          <h2 class="squad__title">Squad</h2>
+          @for (group of squadGroups(); track group.name) {
+            <h3 class="squad__group">{{ group.name }}</h3>
+            <ul class="squad__list">
+              @for (player of group.players; track player.id) {
+                <li class="player">
+                  <span class="player__name">{{ player.name }}</span>
+                  <span class="player__position">{{ player.position }}</span>
+                  <span class="player__nationality">{{ player.nationality }}</span>
+                </li>
+              }
+            </ul>
+          }
+        </section>
+      }
+
+      <a class="team__back" routerLink="/tables">← Back to tables</a>
+    }
+  }
+</main>

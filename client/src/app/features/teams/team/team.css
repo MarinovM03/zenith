@@ -1,0 +1,101 @@
+.team {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-4);
+}
+
+.team__status {
+  color: var(--color-text-muted);
+}
+
+.team__status--error {
+  color: var(--color-danger);
+}
+
+.team__header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-6);
+  margin-bottom: var(--space-8);
+}
+
+.team__heading h1 {
+  margin: 0 0 var(--space-3);
+  font-size: 1.75rem;
+}
+
+.team__facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.team__facts dt {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+}
+
+.team__facts dd {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.squad__title {
+  font-size: 1.25rem;
+  margin: 0 0 var(--space-4);
+}
+
+.squad__group {
+  margin: var(--space-6) 0 var(--space-2);
+  font-size: 1rem;
+  color: var(--color-text-muted);
+}
+
+.squad__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.player {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+}
+
+.player__name {
+  font-weight: 500;
+}
+
+.player__position {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.player__nationality {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.team__back {
+  display: inline-block;
+  margin-top: var(--space-8);
+  color: var(--color-accent);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.team__back:hover {
+  text-decoration: underline;
+}
