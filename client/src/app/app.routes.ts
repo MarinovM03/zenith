@@ -15,6 +15,11 @@ export const routes: Routes = [
     loadComponent: () => import('./features/fixtures/fixtures').then((m) => m.Fixtures),
   },
   {
+    path: 'bets',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/bets/my-bets/my-bets').then((m) => m.MyBets),
+  },
+  {
     path: 'login',
     canActivate: [guestGuard],
     loadComponent: () => import('./features/auth/login/login').then((m) => m.Login),

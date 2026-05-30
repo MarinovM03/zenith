@@ -1,0 +1,148 @@
+.bets {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-4);
+}
+
+.bets__header {
+  margin-bottom: var(--space-6);
+}
+
+.bets__header h1 {
+  margin: 0;
+  font-size: 1.75rem;
+}
+
+.bets__status {
+  color: var(--color-text-muted);
+}
+
+.bets__status--error {
+  color: var(--color-danger);
+}
+
+.bets__empty {
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-6);
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+.bets__cta {
+  display: inline-block;
+  margin-top: var(--space-4);
+  background-color: var(--color-accent);
+  color: #fff;
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-4);
+  font-size: 0.9rem;
+}
+
+.bets__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.bet {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  padding: var(--space-4);
+}
+
+.bet__top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.bet__status {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  color: #fff;
+}
+
+.bet__status--pending {
+  background-color: var(--color-warning);
+}
+
+.bet__status--won {
+  background-color: var(--color-success);
+}
+
+.bet__status--lost {
+  background-color: var(--color-danger);
+}
+
+.bet__status--void {
+  background-color: var(--color-text-muted);
+}
+
+.bet__meta {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.bet__return {
+  margin-left: auto;
+  font-size: 0.85rem;
+  color: var(--color-text);
+}
+
+.bet__legs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.leg {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.leg__status {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+  background-color: var(--color-text-muted);
+}
+
+.leg__status--pending {
+  background-color: var(--color-warning);
+}
+
+.leg__status--won {
+  background-color: var(--color-success);
+}
+
+.leg__status--lost {
+  background-color: var(--color-danger);
+}
+
+.leg__status--void {
+  background-color: var(--color-text-muted);
+}
+
+.leg__label {
+  font-weight: 500;
+}
+
+.leg__match {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}

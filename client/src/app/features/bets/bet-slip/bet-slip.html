@@ -1,0 +1,46 @@
+@if (slip.count() > 0) {
+  <aside class="slip" aria-label="Bet slip">
+    <header class="slip__header">
+      <h2>Bet slip</h2>
+      <button type="button" class="slip__clear" (click)="slip.clear()">Clear</button>
+    </header>
+
+    <ul class="slip__list">
+      @for (sel of slip.selections(); track sel.key) {
+        <li class="slip__item">
+          <div class="slip__selection">
+            <span class="slip__label">{{ sel.label }}</span>
+            <span class="slip__match">{{ sel.matchLabel }}</span>
+          </div>
+          <button
+            type="button"
+            class="slip__remove"
+            (click)="slip.remove(sel.key)"
+            aria-label="Remove selection"
+          >
+            ×
+          </button>
+        </li>
+      }
+    </ul>
+
+    <div class="slip__inputs">
+      <label class="slip__field">
+        <span>Stake</span>
+        <input type="number" min="0" step="0.01" [value]="stake()" (input)="onStake($event)" />
+      </label>
+      <label class="slip__field">
+        <span>Odds</span>
+        <input type="number" min="1" step="0.01" [value]="odds()" (input)="onOdds($event)" />
+      </label>
+    </div>
+
+    @if (error(); as message) {
+      <p class="slip__error" role="alert">{{ message }}</p>
+    }
+
+    <button type="button" class="slip__submit" [disabled]="submitting()" (click)="submit()">
+      {{ submitting() ? 'Logging…' : 'Log bet (' + slip.count() + ')' }}
+    </button>
+  </aside>
+}

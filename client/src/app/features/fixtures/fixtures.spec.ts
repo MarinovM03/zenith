@@ -1,4 +1,6 @@
+import { provideHttpClient } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 
@@ -21,7 +23,11 @@ describe('Fixtures', () => {
   function configure(mock: Partial<FixturesService>) {
     TestBed.configureTestingModule({
       imports: [Fixtures],
-      providers: [{ provide: FixturesService, useValue: mock }],
+      providers: [
+        provideHttpClient(),
+        provideRouter([]),
+        { provide: FixturesService, useValue: mock },
+      ],
     });
   }
 
@@ -38,7 +44,7 @@ describe('Fixtures', () => {
     configure({ list: () => of([]) });
     const fixture = TestBed.createComponent(Fixtures);
     fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain('No Premier League matches');
+    expect(fixture.nativeElement.textContent).toContain('No matches on this date');
   });
 
   it('shows an error message on failure', () => {

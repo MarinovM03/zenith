@@ -51,6 +51,12 @@ class FixtureRepository:
         await self._db.flush()
         return fixture
 
+    async def get_by_ids(self, fixture_ids: list[int]) -> dict[int, Fixture]:
+        if not fixture_ids:
+            return {}
+        result = await self._db.execute(select(Fixture).where(Fixture.id.in_(fixture_ids)))
+        return {f.id: f for f in result.scalars()}
+
     async def list_by_league_and_date(
         self, *, league_id: int, match_date: date_type
     ) -> list[Fixture]:

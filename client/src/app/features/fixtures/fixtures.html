@@ -32,27 +32,43 @@
     }
     @case ('loaded') {
       @if (current.fixtures.length === 0) {
-        <p class="fixtures__status">No Premier League matches on this date.</p>
+        <p class="fixtures__status">No matches on this date.</p>
       } @else {
         <ul class="fixtures__list">
           @for (fixture of current.fixtures; track fixture.id) {
             <li class="match">
-              <span class="match__team match__team--home">{{ fixture.home_team.name }}</span>
-              <span class="match__score">
-                @if (fixture.status === 'scheduled') {
-                  <time class="match__time">{{ fixture.kickoff_at | date: 'HH:mm' }}</time>
-                } @else {
-                  {{ fixture.home_goals ?? 0 }} – {{ fixture.away_goals ?? 0 }}
+              <div class="match__row">
+                <span class="match__team match__team--home">{{ fixture.home_team.name }}</span>
+                <span class="match__score">
+                  @if (fixture.status === 'scheduled') {
+                    <time class="match__time">{{ fixture.kickoff_at | date: 'HH:mm' }}</time>
+                  } @else {
+                    {{ fixture.home_goals ?? 0 }} – {{ fixture.away_goals ?? 0 }}
+                  }
+                </span>
+                <span class="match__team match__team--away">{{ fixture.away_team.name }}</span>
+                <span class="match__status match__status--{{ fixture.status }}">
+                  {{ fixture.status }}
+                </span>
+              </div>
+              <div class="match__markets">
+                @for (chip of chips(fixture); track chip.key) {
+                  <button
+                    type="button"
+                    class="chip"
+                    [class.chip--active]="slip.has(chip.key)"
+                    (click)="slip.toggle(chip)"
+                  >
+                    {{ chip.label }}
+                  </button>
                 }
-              </span>
-              <span class="match__team match__team--away">{{ fixture.away_team.name }}</span>
-              <span class="match__status match__status--{{ fixture.status }}">
-                {{ fixture.status }}
-              </span>
+              </div>
             </li>
           }
         </ul>
       }
     }
   }
+
+  <app-bet-slip />
 </main>

@@ -8,7 +8,9 @@ import {
   signal,
 } from '@angular/core';
 
+import { BetSlipService, Selection } from '../../core/services/bet-slip.service';
 import { Fixture, FixturesService } from '../../core/services/fixtures.service';
+import { BetSlip } from '../bets/bet-slip/bet-slip';
 
 interface League {
   id: number;
@@ -23,6 +25,8 @@ const LEAGUES: readonly League[] = [
   { id: 2015, name: 'Ligue 1' },
 ];
 
+const GOALS_THRESHOLD = 2.5;
+
 type FixturesState =
   | { kind: 'loading' }
   | { kind: 'loaded'; fixtures: Fixture[] }
@@ -36,11 +40,12 @@ function todayIso(): string {
   selector: 'app-fixtures',
   templateUrl: './fixtures.html',
   styleUrl: './fixtures.css',
-  imports: [DatePipe],
+  imports: [DatePipe, BetSlip],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Fixtures implements OnInit {
   private readonly fixturesService = inject(FixturesService);
+  protected readonly slip = inject(BetSlipService);
 
   protected readonly leagues = LEAGUES;
   protected readonly selectedLeague = signal(LEAGUES[0].id);
@@ -68,6 +73,44 @@ export class Fixtures implements OnInit {
       this.selectedDate.set(value);
       this.load();
     }
+  }
+
+  chips(fixture: Fixture): Selection[] {
+    const match = `${fixture.home_team.name} v ${fixture.away_team.name}`;
+    const build = (key: string, label: string, leg: Selection['leg']): Selection => ({
+      key: `${fixture.id}:${key}`,
+      fixtureId: fixture.id,
+      matchLabel: match,
+      label,
+      leg,
+    });
+    return [
+      build('1', fixture.home_team.name, {
+        kind: 'team_win',
+        fixture_id: fixture.id,
+        team_id: fixture.home_team.id,
+      }),
+      build('x', 'Draw', { kind: 'team_draw', fixture_id: fixture.id }),
+      build('2', fixture.away_team.name, {
+        kind: 'team_win',
+        fixture_id: fixture.id,
+        team_id: fixture.away_team.id,
+      }),
+      build('over', 'Over 2.5', {
+        kind: 'over_under_goals',
+        fixture_id: fixture.id,
+        threshold: GOALS_THRESHOLD,
+        direction: 'over',
+      }),
+      build('under', 'Under 2.5', {
+        kind: 'over_under_goals',
+        fixture_id: fixture.id,
+        threshold: GOALS_THRESHOLD,
+        direction: 'under',
+      }),
+      build('btts', 'BTTS', { kind: 'btts', fixture_id: fixture.id, expected: true }),
+      build('nobtts', 'No BTTS', { kind: 'btts', fixture_id: fixture.id, expected: false }),
+    ];
   }
 
   private load(): void {

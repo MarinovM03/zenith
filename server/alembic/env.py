@@ -8,7 +8,13 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from alembic import context
 from app.core.config import get_settings
 from app.db.session import Base
-from app.models import fixture, league, team, user  # noqa: F401  -- register with Base.metadata
+from app.models import (  # noqa: F401  -- register with Base.metadata
+    bet,
+    fixture,
+    league,
+    team,
+    user,
+)
 
 config = context.config
 
