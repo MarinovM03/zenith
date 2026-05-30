@@ -10,21 +10,10 @@ import {
 
 import { BetSlipService, Selection } from '../../core/services/bet-slip.service';
 import { Fixture, FixturesService } from '../../core/services/fixtures.service';
+import { COMPETITIONS } from '../../shared/competitions';
 import { Crest } from '../../shared/crest/crest';
+import { LeagueTabs } from '../../shared/league-tabs/league-tabs';
 import { BetSlip } from '../bets/bet-slip/bet-slip';
-
-interface League {
-  id: number;
-  name: string;
-}
-
-const LEAGUES: readonly League[] = [
-  { id: 2021, name: 'Premier League' },
-  { id: 2014, name: 'La Liga' },
-  { id: 2019, name: 'Serie A' },
-  { id: 2002, name: 'Bundesliga' },
-  { id: 2015, name: 'Ligue 1' },
-];
 
 const GOALS_THRESHOLD = 2.5;
 
@@ -41,20 +30,20 @@ function todayIso(): string {
   selector: 'app-fixtures',
   templateUrl: './fixtures.html',
   styleUrl: './fixtures.css',
-  imports: [DatePipe, BetSlip, Crest],
+  imports: [DatePipe, BetSlip, Crest, LeagueTabs],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Fixtures implements OnInit {
   private readonly fixturesService = inject(FixturesService);
   protected readonly slip = inject(BetSlipService);
 
-  protected readonly leagues = LEAGUES;
-  protected readonly selectedLeague = signal(LEAGUES[0].id);
+  protected readonly leagues = COMPETITIONS;
+  protected readonly selectedLeague = signal(COMPETITIONS[0].id);
   protected readonly selectedDate = signal(todayIso());
   protected readonly state = signal<FixturesState>({ kind: 'loading' });
 
   protected readonly leagueName = computed(
-    () => LEAGUES.find((l) => l.id === this.selectedLeague())?.name ?? 'Fixtures',
+    () => COMPETITIONS.find((l) => l.id === this.selectedLeague())?.name ?? 'Fixtures',
   );
 
   ngOnInit(): void {

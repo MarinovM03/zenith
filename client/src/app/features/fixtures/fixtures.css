@@ -1,7 +1,36 @@
 .fixtures {
-  max-width: 720px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: var(--space-8) var(--space-4);
+}
+
+.layout {
+  display: flex;
+  gap: var(--space-6);
+  align-items: flex-start;
+}
+
+.layout__sidebar {
+  flex: 0 0 220px;
+  position: sticky;
+  top: var(--space-4);
+}
+
+.layout__main {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 720px) {
+  .layout {
+    flex-direction: column;
+  }
+
+  .layout__sidebar {
+    position: static;
+    width: 100%;
+    flex: none;
+  }
 }
 
 .fixtures__header {
@@ -39,39 +68,6 @@
 .fixtures__control input:focus {
   outline: none;
   border-color: var(--color-accent);
-}
-
-.league-tabs {
-  display: flex;
-  gap: var(--space-2);
-  overflow-x: auto;
-  padding-bottom: var(--space-2);
-  margin-bottom: var(--space-6);
-  scrollbar-width: thin;
-}
-
-.league-tabs__tab {
-  flex: 0 0 auto;
-  white-space: nowrap;
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  color: var(--color-text-muted);
-  padding: var(--space-2) var(--space-4);
-  font-family: inherit;
-  font-size: 0.9rem;
-  cursor: pointer;
-}
-
-.league-tabs__tab:hover {
-  border-color: var(--color-accent);
-  color: var(--color-text);
-}
-
-.league-tabs__tab--active {
-  background-color: var(--color-accent);
-  border-color: var(--color-accent);
-  color: #fff;
 }
 
 .fixtures__status {

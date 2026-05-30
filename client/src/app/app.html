@@ -8,6 +8,7 @@
     <nav class="shell__nav">
       @if (isAuthenticated()) {
         <a routerLink="/fixtures" class="shell__action">Fixtures</a>
+        <a routerLink="/tables" class="shell__action">Tables</a>
         <a routerLink="/bets" class="shell__action">My bets</a>
         <span class="shell__user">{{ user()?.email }}</span>
         <button type="button" class="shell__action" (click)="logout()">Log out</button>
