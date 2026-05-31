@@ -1,8 +1,9 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, catchError, forkJoin, map, of } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
+import { Competition, GROUPED_COMPETITIONS } from '../../shared/competitions';
 
 export interface FixtureTeam {
   id: number;
@@ -43,4 +44,24 @@ export class FixturesService {
     }
     return this.http.get<Fixture[]>(`${this.baseUrl}/fixtures`, { params });
   }
+
+  /**
+   * Fetches the day's fixtures across every competition and groups them.
+   * Each competition is requested independently (the free API has no bulk
+   * endpoint); a failed competition simply contributes no matches.
+   */
+  listGroupedByDate(date: string): Observable<CompetitionGroup[]> {
+    const calls = GROUPED_COMPETITIONS.map((competition) =>
+      this.list(competition.id, date).pipe(
+        map((fixtures) => ({ competition, fixtures })),
+        catchError(() => of({ competition, fixtures: [] as Fixture[] })),
+      ),
+    );
+    return forkJoin(calls).pipe(map((groups) => groups.filter((g) => g.fixtures.length > 0)));
+  }
+}
+
+export interface CompetitionGroup {
+  competition: Competition;
+  fixtures: Fixture[];
 }

@@ -7,25 +7,33 @@ import {
   inject,
   signal,
 } from '@angular/core';
-
 import { RouterLink } from '@angular/router';
 
+import { map } from 'rxjs';
+
 import { BetSlipService, Selection } from '../../core/services/bet-slip.service';
-import { Fixture, FixturesService } from '../../core/services/fixtures.service';
-import { COMPETITIONS } from '../../shared/competitions';
+import { CompetitionGroup, Fixture, FixturesService } from '../../core/services/fixtures.service';
+import { COMPETITIONS, Competition, competitionName } from '../../shared/competitions';
 import { Crest } from '../../shared/crest/crest';
 import { LeagueTabs } from '../../shared/league-tabs/league-tabs';
 import { BetSlip } from '../bets/bet-slip/bet-slip';
 
 const GOALS_THRESHOLD = 2.5;
+const ALL_ID = 0;
 
 type FixturesState =
   | { kind: 'loading' }
-  | { kind: 'loaded'; fixtures: Fixture[] }
+  | { kind: 'loaded'; groups: CompetitionGroup[] }
   | { kind: 'error' };
 
 function todayIso(): string {
   return new Date().toISOString().slice(0, 10);
+}
+
+function shiftIso(iso: string, days: number): string {
+  const d = new Date(iso + 'T00:00:00');
+  d.setDate(d.getDate() + days);
+  return d.toISOString().slice(0, 10);
 }
 
 @Component({
@@ -39,14 +47,20 @@ export class Fixtures implements OnInit {
   private readonly fixturesService = inject(FixturesService);
   protected readonly slip = inject(BetSlipService);
 
-  protected readonly leagues = COMPETITIONS;
-  protected readonly selectedLeague = signal(COMPETITIONS[0].id);
+  protected readonly sidebar: Competition[] = [
+    { id: ALL_ID, name: 'All matches', emblem: '' },
+    ...COMPETITIONS,
+  ];
+  protected readonly selectedLeague = signal<number>(ALL_ID);
   protected readonly selectedDate = signal(todayIso());
   protected readonly state = signal<FixturesState>({ kind: 'loading' });
 
-  protected readonly leagueName = computed(
-    () => COMPETITIONS.find((l) => l.id === this.selectedLeague())?.name ?? 'Fixtures',
-  );
+  protected readonly isToday = computed(() => this.selectedDate() === todayIso());
+
+  protected readonly visibleGroups = computed<CompetitionGroup[]>(() => {
+    const current = this.state();
+    return current.kind === 'loaded' ? current.groups : [];
+  });
 
   ngOnInit(): void {
     this.load();
@@ -55,6 +69,18 @@ export class Fixtures implements OnInit {
   selectLeague(id: number): void {
     if (id !== this.selectedLeague()) {
       this.selectedLeague.set(id);
+      this.load();
+    }
+  }
+
+  shiftDay(delta: number): void {
+    this.selectedDate.set(shiftIso(this.selectedDate(), delta));
+    this.load();
+  }
+
+  goToday(): void {
+    if (!this.isToday()) {
+      this.selectedDate.set(todayIso());
       this.load();
     }
   }
@@ -107,8 +133,29 @@ export class Fixtures implements OnInit {
 
   private load(): void {
     this.state.set({ kind: 'loading' });
-    this.fixturesService.list(this.selectedLeague(), this.selectedDate()).subscribe({
-      next: (fixtures) => this.state.set({ kind: 'loaded', fixtures }),
+    const date = this.selectedDate();
+    const league = this.selectedLeague();
+
+    const source =
+      league === ALL_ID
+        ? this.fixturesService.listGroupedByDate(date)
+        : this.fixturesService
+            .list(league, date)
+            .pipe(
+              map((fixtures) =>
+                fixtures.length
+                  ? [
+                      {
+                        competition: { id: league, name: competitionName(league), emblem: '' },
+                        fixtures,
+                      },
+                    ]
+                  : [],
+              ),
+            );
+
+    source.subscribe({
+      next: (groups) => this.state.set({ kind: 'loaded', groups }),
       error: () => this.state.set({ kind: 'error' }),
     });
   }

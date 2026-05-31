@@ -5,19 +5,32 @@ import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 
 import { Fixtures } from './fixtures';
-import { Fixture, FixturesService } from '../../core/services/fixtures.service';
+import { CompetitionGroup, Fixture, FixturesService } from '../../core/services/fixtures.service';
 
-const FAKE_FIXTURE: Fixture = {
-  id: 1,
-  external_id: 1001,
-  league: { id: 39, name: 'Premier League', country: 'England', logo_url: null },
-  home_team: { id: 33, name: 'Manchester United', logo_url: null },
-  away_team: { id: 34, name: 'Newcastle', logo_url: null },
-  kickoff_at: '2026-05-28T15:00:00Z',
-  status: 'scheduled',
-  home_goals: null,
-  away_goals: null,
-};
+function fixture(id: number, home: string, away: string): Fixture {
+  return {
+    id,
+    external_id: 1000 + id,
+    league: { id: 39, name: 'League', country: 'X', logo_url: null },
+    home_team: { id: id * 10, name: home, logo_url: null },
+    away_team: { id: id * 10 + 1, name: away, logo_url: null },
+    kickoff_at: '2026-05-28T15:00:00Z',
+    status: 'scheduled',
+    home_goals: null,
+    away_goals: null,
+  };
+}
+
+const GROUPS: CompetitionGroup[] = [
+  {
+    competition: { id: 2021, name: 'Premier League', emblem: '' },
+    fixtures: [fixture(1, 'Manchester United', 'Newcastle')],
+  },
+  {
+    competition: { id: 2014, name: 'La Liga', emblem: '' },
+    fixtures: [fixture(2, 'Real Madrid', 'Barcelona')],
+  },
+];
 
 describe('Fixtures', () => {
   function configure(mock: Partial<FixturesService>) {
@@ -31,53 +44,57 @@ describe('Fixtures', () => {
     });
   }
 
-  it('renders matches on success', () => {
-    configure({ list: () => of([FAKE_FIXTURE]) });
-    const fixture = TestBed.createComponent(Fixtures);
-    fixture.detectChanges();
-    const text = fixture.nativeElement.textContent;
+  it('renders grouped matches on success', () => {
+    configure({ listGroupedByDate: () => of(GROUPS) });
+    const f = TestBed.createComponent(Fixtures);
+    f.detectChanges();
+    const text = f.nativeElement.textContent;
+    expect(text).toContain('Premier League');
     expect(text).toContain('Manchester United');
-    expect(text).toContain('Newcastle');
+    expect(text).toContain('La Liga');
+    expect(text).toContain('Real Madrid');
   });
 
   it('shows an empty-state message when there are no matches', () => {
-    configure({ list: () => of([]) });
-    const fixture = TestBed.createComponent(Fixtures);
-    fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain('No matches on this date');
+    configure({ listGroupedByDate: () => of([]) });
+    const f = TestBed.createComponent(Fixtures);
+    f.detectChanges();
+    expect(f.nativeElement.textContent).toContain('No matches on this date');
   });
 
   it('shows an error message on failure', () => {
-    configure({ list: () => throwError(() => new Error('boom')) });
-    const fixture = TestBed.createComponent(Fixtures);
-    fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('.fixtures__status--error')).toBeTruthy();
+    configure({ listGroupedByDate: () => throwError(() => new Error('boom')) });
+    const f = TestBed.createComponent(Fixtures);
+    f.detectChanges();
+    expect(f.nativeElement.querySelector('.fixtures__status--error')).toBeTruthy();
   });
 
-  it('reloads with the chosen date when the date input changes', () => {
-    const list = vi.fn().mockReturnValue(of([FAKE_FIXTURE]));
-    configure({ list });
-    const fixture = TestBed.createComponent(Fixtures);
-    fixture.detectChanges();
+  it('fetches a single competition when a league tab is clicked', () => {
+    const list = vi.fn().mockReturnValue(of([fixture(2, 'Real Madrid', 'Barcelona')]));
+    configure({ listGroupedByDate: () => of(GROUPS), list });
+    const f = TestBed.createComponent(Fixtures);
+    f.detectChanges();
 
-    const input: HTMLInputElement = fixture.nativeElement.querySelector('input[type="date"]');
+    // sidebar tabs: [All, Premier League, La Liga, ...] — click La Liga (2014)
+    const tabs = f.nativeElement.querySelectorAll('.league-tabs__tab');
+    (tabs[2] as HTMLButtonElement).click();
+    f.detectChanges();
+
+    expect(list).toHaveBeenCalledWith(2014, expect.any(String));
+    expect(f.nativeElement.textContent).toContain('Real Madrid');
+  });
+
+  it('reloads when the date changes', () => {
+    const listGroupedByDate = vi.fn().mockReturnValue(of(GROUPS));
+    configure({ listGroupedByDate });
+    const f = TestBed.createComponent(Fixtures);
+    f.detectChanges();
+
+    const input: HTMLInputElement = f.nativeElement.querySelector('input[type="date"]');
     input.value = '2025-08-16';
     input.dispatchEvent(new Event('change'));
-    fixture.detectChanges();
+    f.detectChanges();
 
-    expect(list).toHaveBeenLastCalledWith(2021, '2025-08-16');
-  });
-
-  it('reloads with the chosen competition when a league tab is clicked', () => {
-    const list = vi.fn().mockReturnValue(of([FAKE_FIXTURE]));
-    configure({ list });
-    const fixture = TestBed.createComponent(Fixtures);
-    fixture.detectChanges();
-
-    const tabs = fixture.nativeElement.querySelectorAll('.league-tabs__tab');
-    (tabs[1] as HTMLButtonElement).click();
-    fixture.detectChanges();
-
-    expect(list).toHaveBeenLastCalledWith(2014, expect.any(String));
+    expect(listGroupedByDate).toHaveBeenLastCalledWith('2025-08-16');
   });
 });
