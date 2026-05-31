@@ -8,10 +8,10 @@
   flex-direction: column;
   gap: var(--space-3);
   padding: var(--space-4);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-lg);
-  background-color: var(--color-surface);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  background-color: var(--color-elevated);
+  box-shadow: var(--shadow-pop);
 }
 
 .slip__header {
@@ -118,13 +118,17 @@
 
 .slip__submit {
   background-color: var(--color-accent);
-  color: #fff;
+  color: var(--color-on-accent);
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   padding: var(--space-3);
   font-size: 0.95rem;
-  font-weight: 500;
+  font-weight: 700;
   cursor: pointer;
+}
+
+.slip__submit:hover:not(:disabled) {
+  background-color: var(--color-accent-strong);
 }
 
 .slip__submit:disabled {
