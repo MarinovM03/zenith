@@ -33,7 +33,7 @@
 .home__cta {
   display: inline-block;
   background-color: var(--color-accent);
-  color: white;
+  color: var(--color-on-accent);
   text-decoration: none;
   border-radius: var(--radius-sm);
   padding: var(--space-2) var(--space-4);

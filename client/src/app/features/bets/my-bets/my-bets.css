@@ -33,7 +33,7 @@
   display: inline-block;
   margin-top: var(--space-4);
   background-color: var(--color-accent);
-  color: #fff;
+  color: var(--color-on-accent);
   text-decoration: none;
   border-radius: var(--radius-sm);
   padding: var(--space-2) var(--space-4);

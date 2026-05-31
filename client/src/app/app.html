@@ -1,22 +1,34 @@
 @if (status() === 'loading' || status() === 'idle') {
   <main class="boot">
-    <p>Loading…</p>
+    <span class="boot__spinner" aria-label="Loading"></span>
   </main>
 } @else {
-  <header class="shell__header">
-    <a routerLink="/" class="shell__brand">Acca</a>
-    <nav class="shell__nav">
+  <header class="shell">
+    <div class="shell__inner">
+      <a routerLink="/" class="brand">
+        <span class="brand__mark"></span>
+        <span class="brand__name">Acca</span>
+      </a>
+
       @if (isAuthenticated()) {
-        <a routerLink="/fixtures" class="shell__action">Fixtures</a>
-        <a routerLink="/tables" class="shell__action">Tables</a>
-        <a routerLink="/bets" class="shell__action">My bets</a>
-        <span class="shell__user">{{ user()?.email }}</span>
-        <button type="button" class="shell__action" (click)="logout()">Log out</button>
+        <nav class="nav">
+          <a routerLink="/fixtures" routerLinkActive="nav__link--active" class="nav__link">
+            Fixtures
+          </a>
+          <a routerLink="/tables" routerLinkActive="nav__link--active" class="nav__link">Tables</a>
+          <a routerLink="/bets" routerLinkActive="nav__link--active" class="nav__link">My bets</a>
+        </nav>
+        <div class="shell__user">
+          <span class="shell__email">{{ user()?.email }}</span>
+          <button type="button" class="shell__btn" (click)="logout()">Log out</button>
+        </div>
       } @else {
-        <a routerLink="/login" class="shell__action">Log in</a>
-        <a routerLink="/register" class="shell__action shell__action--primary">Sign up</a>
+        <div class="shell__user">
+          <a routerLink="/login" class="shell__btn">Log in</a>
+          <a routerLink="/register" class="shell__btn shell__btn--accent">Sign up</a>
+        </div>
       }
-    </nav>
+    </div>
   </header>
 
   <router-outlet />

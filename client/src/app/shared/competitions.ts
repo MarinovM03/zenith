@@ -29,3 +29,14 @@ export const COMPETITIONS: readonly Competition[] = [
 export function competitionName(id: number): string {
   return COMPETITIONS.find((c) => c.id === id)?.name ?? 'Competition';
 }
+
+/**
+ * The subset shown in the "All matches" grouped view. Capped so a cold load
+ * stays within the free API's 10 requests/minute limit and never starves the
+ * Tables/Teams pages. Every competition is still browsable individually.
+ */
+const GROUPED_IDS = [2021, 2014, 2019, 2002, 2015, 2001, 2016, 2003];
+
+export const GROUPED_COMPETITIONS: readonly Competition[] = COMPETITIONS.filter((c) =>
+  GROUPED_IDS.includes(c.id),
+);
