@@ -8,6 +8,8 @@ import {
   signal,
 } from '@angular/core';
 
+import { RouterLink } from '@angular/router';
+
 import { BetSlipService, Selection } from '../../core/services/bet-slip.service';
 import { Fixture, FixturesService } from '../../core/services/fixtures.service';
 import { COMPETITIONS } from '../../shared/competitions';
@@ -30,7 +32,7 @@ function todayIso(): string {
   selector: 'app-fixtures',
   templateUrl: './fixtures.html',
   styleUrl: './fixtures.css',
-  imports: [DatePipe, BetSlip, Crest, LeagueTabs],
+  imports: [DatePipe, BetSlip, Crest, LeagueTabs, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Fixtures implements OnInit {

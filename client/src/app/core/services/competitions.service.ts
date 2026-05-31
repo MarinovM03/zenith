@@ -60,6 +60,24 @@ export interface TeamDetail {
   squad: SquadPlayer[];
 }
 
+export interface MatchDetail {
+  external_id: number;
+  competition_id: number;
+  competition_name: string;
+  competition_emblem: string | null;
+  utc_date: string;
+  status: 'scheduled' | 'live' | 'finished' | 'postponed' | 'cancelled';
+  matchday: number | null;
+  venue: string | null;
+  referee: string | null;
+  home: StandingTeam;
+  away: StandingTeam;
+  home_goals: number | null;
+  away_goals: number | null;
+  home_half_time: number | null;
+  away_half_time: number | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class CompetitionsService {
   private readonly http = inject(HttpClient);
@@ -77,5 +95,9 @@ export class CompetitionsService {
 
   team(teamId: number): Observable<TeamDetail> {
     return this.http.get<TeamDetail>(`${this.baseUrl}/teams/${teamId}`);
+  }
+
+  match(matchId: number): Observable<MatchDetail> {
+    return this.http.get<MatchDetail>(`${this.baseUrl}/matches/${matchId}`);
   }
 }

@@ -73,6 +73,19 @@ TEAM_PAYLOAD = {
     ],
 }
 
+MATCH_PAYLOAD = {
+    "id": 537785,
+    "utcDate": "2025-08-15T19:00:00Z",
+    "status": "FINISHED",
+    "matchday": 1,
+    "venue": "Anfield",
+    "competition": {"id": 2021, "name": "Premier League", "emblem": "pl.png"},
+    "homeTeam": {"id": 64, "name": "Liverpool FC", "crest": "liv.png"},
+    "awayTeam": {"id": 1044, "name": "AFC Bournemouth", "crest": "bou.png"},
+    "score": {"fullTime": {"home": 4, "away": 2}, "halfTime": {"home": 1, "away": 0}},
+    "referees": [{"id": 11580, "name": "Anthony Taylor", "type": "REFEREE"}],
+}
+
 
 def _router(payloads: dict[str, dict]):
     def handler(request: httpx.Request) -> httpx.Response:
@@ -125,6 +138,7 @@ auth_client = _make_auth_client(
             "/standings": STANDINGS_PAYLOAD,
             "/scorers": SCORERS_PAYLOAD,
             "/teams/57": TEAM_PAYLOAD,
+            "/matches/537785": MATCH_PAYLOAD,
         }
     )
 )
@@ -159,6 +173,19 @@ async def test_team_returns_detail_and_squad(auth_client: AsyncClient) -> None:
     assert body["venue"] == "Emirates Stadium"
     assert len(body["squad"]) == 1
     assert body["squad"][0]["position"] == "Goalkeeper"
+
+
+@pytest.mark.asyncio
+async def test_match_returns_detail(auth_client: AsyncClient) -> None:
+    response = await auth_client.get("/matches/537785")
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["home"]["name"] == "Liverpool FC"
+    assert body["status"] == "finished"
+    assert body["home_goals"] == 4
+    assert body["home_half_time"] == 1
+    assert body["venue"] == "Anfield"
+    assert body["referee"] == "Anthony Taylor"
 
 
 @pytest.mark.asyncio

@@ -36,7 +36,7 @@
                   <li class="leg">
                     <span class="leg__status leg__status--{{ leg.status }}"></span>
                     <span class="leg__label">{{ legLabel(leg) }}</span>
-                    <span class="leg__match">
+                    <a class="leg__match" [routerLink]="['/matches', leg.fixture.external_id]">
                       <app-crest
                         [src]="leg.fixture.home_team.logo_url"
                         [alt]="leg.fixture.home_team.name"
@@ -48,7 +48,7 @@
                         [size]="16"
                       />
                       {{ matchLabel(leg) }}
-                    </span>
+                    </a>
                   </li>
                 }
               </ul>

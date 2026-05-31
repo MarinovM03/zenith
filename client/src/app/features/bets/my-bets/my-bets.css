@@ -148,4 +148,9 @@
   gap: var(--space-1);
   color: var(--color-text-muted);
   font-size: 0.85rem;
+  text-decoration: none;
+}
+
+.leg__match:hover {
+  color: var(--color-accent);
 }

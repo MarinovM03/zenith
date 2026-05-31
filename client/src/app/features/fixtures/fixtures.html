@@ -34,7 +34,7 @@
             <ul class="fixtures__list">
               @for (fixture of current.fixtures; track fixture.id) {
                 <li class="match">
-                  <div class="match__row">
+                  <a class="match__row" [routerLink]="['/matches', fixture.external_id]">
                     <span class="match__team match__team--home">
                       <span class="match__name">{{ fixture.home_team.name }}</span>
                       <app-crest
@@ -61,7 +61,7 @@
                     <span class="match__status match__status--{{ fixture.status }}">
                       {{ fixture.status }}
                     </span>
-                  </div>
+                  </a>
                   @if (fixture.status === 'scheduled' || fixture.status === 'live') {
                     <div class="match__markets">
                       @for (chip of chips(fixture); track chip.key) {

@@ -121,6 +121,41 @@ class TeamDetail(BaseModel):
     squad: list[SquadPlayer]
 
 
+class MatchDetail(BaseModel):
+    external_id: int
+    competition_id: int
+    competition_name: str
+    competition_emblem: str | None
+    utc_date: str
+    status: str
+    matchday: int | None
+    venue: str | None
+    referee: str | None
+    home: ParsedTeam
+    away: ParsedTeam
+    home_goals: int | None
+    away_goals: int | None
+    home_half_time: int | None
+    away_half_time: int | None
+
+
+_MATCH_STATUS = {
+    "SCHEDULED": "scheduled",
+    "TIMED": "scheduled",
+    "IN_PLAY": "live",
+    "PAUSED": "live",
+    "FINISHED": "finished",
+    "AWARDED": "finished",
+    "POSTPONED": "postponed",
+    "SUSPENDED": "cancelled",
+    "CANCELLED": "cancelled",
+}
+
+
+def _map_match_status(raw: str) -> str:
+    return _MATCH_STATUS.get(raw, "scheduled")
+
+
 class FootballDataClient:
     def __init__(
         self,
@@ -202,6 +237,44 @@ class FootballDataClient:
             website=data.get("website"),
             coach_name=coach.get("name"),
             squad=squad,
+        )
+
+    async def match(self, *, match_id: int) -> MatchDetail | None:
+        if not self._api_key:
+            return None
+        data = await self._get_json(f"/matches/{match_id}")
+        competition = data.get("competition") or {}
+        home = data.get("homeTeam") or {}
+        away = data.get("awayTeam") or {}
+        score = data.get("score") or {}
+        full_time = score.get("fullTime") or {}
+        half_time = score.get("halfTime") or {}
+        referees = data.get("referees") or []
+        referee = referees[0].get("name") if referees else None
+        return MatchDetail(
+            external_id=data.get("id", match_id),
+            competition_id=competition.get("id", 0),
+            competition_name=competition.get("name", ""),
+            competition_emblem=competition.get("emblem"),
+            utc_date=data.get("utcDate", ""),
+            status=_map_match_status(data.get("status", "")),
+            matchday=data.get("matchday"),
+            venue=data.get("venue"),
+            referee=referee,
+            home=ParsedTeam(
+                external_id=home.get("id", 0),
+                name=home.get("name", "Unknown"),
+                logo_url=home.get("crest"),
+            ),
+            away=ParsedTeam(
+                external_id=away.get("id", 0),
+                name=away.get("name", "Unknown"),
+                logo_url=away.get("crest"),
+            ),
+            home_goals=full_time.get("home"),
+            away_goals=full_time.get("away"),
+            home_half_time=half_time.get("home"),
+            away_half_time=half_time.get("away"),
         )
 
     async def _get_json(self, path: str, params: dict | None = None) -> dict:
