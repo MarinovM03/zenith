@@ -4,6 +4,7 @@ from app.services.cache import JsonCache
 from app.services.football_data import (
     FootballDataClient,
     FootballDataError,
+    MatchDetail,
     ScorerRow,
     StandingsGroup,
     TeamDetail,
@@ -65,3 +66,24 @@ class CompetitionsService:
             return None
         await self._cache.set(key, team.model_dump(mode="json"), ttl_seconds=_TEAM_TTL)
         return team
+
+    async def match(self, match_id: int) -> MatchDetail | None:
+        key = f"acca:match:{match_id}"
+        cached = await self._cache.get(key)
+        if cached is not None:
+            return MatchDetail.model_validate(cached)
+        try:
+            detail = await self._client.match(match_id=match_id)
+        except FootballDataError:
+            logger.warning("match request failed", exc_info=True)
+            return None
+        if detail is None:
+            return None
+        if detail.status == "live":
+            ttl = 30
+        elif detail.status == "finished":
+            ttl = 24 * 3600
+        else:
+            ttl = 300
+        await self._cache.set(key, detail.model_dump(mode="json"), ttl_seconds=ttl)
+        return detail

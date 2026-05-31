@@ -11,6 +11,7 @@ from app.services.cache import JsonCache
 from app.services.competitions import CompetitionsService
 from app.services.football_data import (
     FootballDataClient,
+    MatchDetail,
     ScorerRow,
     StandingsGroup,
     TeamDetail,
@@ -57,4 +58,17 @@ async def team(
     detail = await _service(redis, football).team(team_id)
     if detail is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="team not found")
+    return detail
+
+
+@router.get("/matches/{match_id}", response_model=MatchDetail)
+async def match(
+    current_user: CurrentUserDep,
+    redis: RedisDep,
+    football: FootballClientDep,
+    match_id: int,
+) -> MatchDetail:
+    detail = await _service(redis, football).match(match_id)
+    if detail is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="match not found")
     return detail
