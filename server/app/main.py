@@ -1,4 +1,6 @@
 import logging
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,6 +9,7 @@ from slowapi.errors import RateLimitExceeded
 
 from app.core.config import get_settings
 from app.routers import auth, bets, competitions, fixtures, health
+from app.services.football_data import close_shared_http_client
 
 
 def configure_logging(level: str) -> None:
@@ -16,6 +19,12 @@ def configure_logging(level: str) -> None:
     )
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+    yield
+    await close_shared_http_client()
+
+
 def create_app() -> FastAPI:
     settings = get_settings()
     configure_logging(settings.log_level)
@@ -23,6 +32,7 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title="Acca API",
         version="0.1.0",
+        lifespan=lifespan,
     )
 
     app.state.limiter = auth.limiter

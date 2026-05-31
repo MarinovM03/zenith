@@ -31,9 +31,11 @@ def map_status(raw: str) -> FixtureStatus:
     return _STATUS_MAP.get(raw, FixtureStatus.SCHEDULED)
 
 
+_EMPTY_TTL = 1800  # a competition with no matches that day — re-check in 30 min
+_ERROR_TTL = 60  # rate-limited/failed — brief negative cache so we stop hammering
+
+
 def _ttl_for_fixtures(fixtures: list[Fixture]) -> int:
-    if not fixtures:
-        return 300
     if any(f.status == FixtureStatus.LIVE for f in fixtures):
         return 30
     if all(f.status == FixtureStatus.FINISHED for f in fixtures):
@@ -68,10 +70,11 @@ class FixturesService:
             )
         except FootballDataError:
             logger.warning("football-data.org request failed", exc_info=True)
+            await self._cache.set(cache_key, [], ttl_seconds=_ERROR_TTL)
             return []
 
         if not rows:
-            await self._cache.set(cache_key, [], ttl_seconds=300)
+            await self._cache.set(cache_key, [], ttl_seconds=_EMPTY_TTL)
             return []
 
         fixtures = await self._sync_to_db(rows)
