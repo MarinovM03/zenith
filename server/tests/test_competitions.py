@@ -86,6 +86,18 @@ MATCH_PAYLOAD = {
     "referees": [{"id": 11580, "name": "Anthony Taylor", "type": "REFEREE"}],
 }
 
+PLAYER_PAYLOAD = {
+    "id": 38101,
+    "name": "Erling Haaland",
+    "firstName": "Erling",
+    "lastName": "Haaland",
+    "dateOfBirth": "2000-07-21",
+    "nationality": "Norway",
+    "position": "Offence",
+    "shirtNumber": 9,
+    "currentTeam": {"id": 65, "name": "Manchester City FC", "crest": "mc.png"},
+}
+
 
 def _router(payloads: dict[str, dict]):
     def handler(request: httpx.Request) -> httpx.Response:
@@ -139,6 +151,7 @@ auth_client = _make_auth_client(
             "/scorers": SCORERS_PAYLOAD,
             "/teams/57": TEAM_PAYLOAD,
             "/matches/537785": MATCH_PAYLOAD,
+            "/persons/38101": PLAYER_PAYLOAD,
         }
     )
 )
@@ -186,6 +199,17 @@ async def test_match_returns_detail(auth_client: AsyncClient) -> None:
     assert body["home_half_time"] == 1
     assert body["venue"] == "Anfield"
     assert body["referee"] == "Anthony Taylor"
+
+
+@pytest.mark.asyncio
+async def test_player_returns_detail(auth_client: AsyncClient) -> None:
+    response = await auth_client.get("/players/38101")
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["name"] == "Erling Haaland"
+    assert body["shirt_number"] == 9
+    assert body["nationality"] == "Norway"
+    assert body["team_name"] == "Manchester City FC"
 
 
 @pytest.mark.asyncio
