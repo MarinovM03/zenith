@@ -1,19 +1,19 @@
 .tables {
-  max-width: 1080px;
+  max-width: 1140px;
   margin: 0 auto;
-  padding: var(--space-8) var(--space-4);
+  padding: var(--space-8) var(--space-6);
 }
 
 .layout {
   display: flex;
-  gap: var(--space-6);
+  gap: var(--space-8);
   align-items: flex-start;
 }
 
 .layout__sidebar {
-  flex: 0 0 220px;
+  flex: 0 0 232px;
   position: sticky;
-  top: var(--space-4);
+  top: 84px;
 }
 
 .layout__main {
@@ -21,9 +21,10 @@
   min-width: 0;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 760px) {
   .layout {
     flex-direction: column;
+    gap: var(--space-4);
   }
 
   .layout__sidebar {
@@ -39,7 +40,8 @@
 
 .tables__header h1 {
   margin: 0;
-  font-size: 1.75rem;
+  font-size: 1.9rem;
+  font-weight: 800;
 }
 
 .tables__status {
@@ -52,15 +54,17 @@
 
 .tables__group {
   margin: var(--space-6) 0 var(--space-3);
-  font-size: 1.1rem;
+  font-size: 1rem;
+  font-weight: 700;
   color: var(--color-text-muted);
 }
 
 .table-wrap {
   overflow-x: auto;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   background-color: var(--color-surface);
+  box-shadow: var(--shadow-sm);
 }
 
 .table {
@@ -78,17 +82,29 @@
 
 .table thead th {
   color: var(--color-text-muted);
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   border-bottom: 1px solid var(--color-border);
 }
 
-.table tbody tr:not(:last-child) {
-  border-bottom: 1px solid var(--color-border);
+.table tbody tr {
+  border-top: 1px solid var(--color-border);
+}
+
+.table tbody tr:first-child {
+  border-top: none;
+}
+
+.table tbody tr:hover {
+  background-color: var(--color-surface-2);
 }
 
 .table__pos {
-  width: 36px;
+  width: 40px;
   color: var(--color-text-muted);
+  font-weight: 600;
 }
 
 .table th.table__team,
@@ -99,10 +115,10 @@
 .table__teamlink {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-3);
   color: var(--color-text);
   text-decoration: none;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .table__teamlink:hover {
@@ -110,7 +126,7 @@
 }
 
 .table__pts {
-  font-weight: 600;
+  font-weight: 800;
 }
 
 .scorers {
@@ -118,7 +134,8 @@
 }
 
 .scorers__title {
-  font-size: 1.25rem;
+  font-size: 1.3rem;
+  font-weight: 800;
   margin: 0 0 var(--space-4);
 }
 
@@ -145,10 +162,11 @@
 .scorer__rank {
   color: var(--color-text-muted);
   text-align: center;
+  font-weight: 700;
 }
 
 .scorer__name {
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .scorer__team {
@@ -157,7 +175,8 @@
 }
 
 .scorer__goals {
-  font-weight: 600;
+  font-weight: 700;
+  color: var(--color-accent);
 }
 
 .scorer__assists {
