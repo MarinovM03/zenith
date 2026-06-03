@@ -96,6 +96,12 @@
 
 .player__name {
   font-weight: 600;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.player__name:hover {
+  color: var(--color-accent);
 }
 
 .player__position {

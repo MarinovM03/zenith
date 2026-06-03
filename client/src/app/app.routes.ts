@@ -31,6 +31,11 @@ export const routes: Routes = [
       import('./features/matches/match-detail/match-detail').then((m) => m.MatchDetailPage),
   },
   {
+    path: 'players/:id',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/players/player/player').then((m) => m.Player),
+  },
+  {
     path: 'bets',
     canActivate: [authGuard],
     loadComponent: () => import('./features/bets/my-bets/my-bets').then((m) => m.MyBets),

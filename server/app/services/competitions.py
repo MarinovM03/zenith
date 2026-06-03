@@ -5,6 +5,7 @@ from app.services.football_data import (
     FootballDataClient,
     FootballDataError,
     MatchDetail,
+    PlayerDetail,
     ScorerRow,
     StandingsGroup,
     TeamDetail,
@@ -15,6 +16,7 @@ logger = logging.getLogger(__name__)
 _STANDINGS_TTL = 3600
 _SCORERS_TTL = 3600
 _TEAM_TTL = 24 * 3600
+_PLAYER_TTL = 24 * 3600
 
 
 class CompetitionsService:
@@ -86,4 +88,19 @@ class CompetitionsService:
         else:
             ttl = 300
         await self._cache.set(key, detail.model_dump(mode="json"), ttl_seconds=ttl)
+        return detail
+
+    async def player(self, person_id: int) -> PlayerDetail | None:
+        key = f"acca:player:{person_id}"
+        cached = await self._cache.get(key)
+        if cached is not None:
+            return PlayerDetail.model_validate(cached)
+        try:
+            detail = await self._client.person(person_id=person_id)
+        except FootballDataError:
+            logger.warning("player request failed", exc_info=True)
+            return None
+        if detail is None:
+            return None
+        await self._cache.set(key, detail.model_dump(mode="json"), ttl_seconds=_PLAYER_TTL)
         return detail

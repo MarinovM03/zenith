@@ -139,6 +139,20 @@ class MatchDetail(BaseModel):
     away_half_time: int | None
 
 
+class PlayerDetail(BaseModel):
+    id: int
+    name: str
+    first_name: str | None
+    last_name: str | None
+    date_of_birth: str | None
+    nationality: str | None
+    position: str | None
+    shirt_number: int | None
+    team_id: int | None
+    team_name: str | None
+    team_crest: str | None
+
+
 _MATCH_STATUS = {
     "SCHEDULED": "scheduled",
     "TIMED": "scheduled",
@@ -275,6 +289,25 @@ class FootballDataClient:
             away_goals=full_time.get("away"),
             home_half_time=half_time.get("home"),
             away_half_time=half_time.get("away"),
+        )
+
+    async def person(self, *, person_id: int) -> PlayerDetail | None:
+        if not self._api_key:
+            return None
+        data = await self._get_json(f"/persons/{person_id}")
+        team = data.get("currentTeam") or {}
+        return PlayerDetail(
+            id=data.get("id", person_id),
+            name=data.get("name", "Unknown"),
+            first_name=data.get("firstName"),
+            last_name=data.get("lastName"),
+            date_of_birth=data.get("dateOfBirth"),
+            nationality=data.get("nationality"),
+            position=data.get("position"),
+            shirt_number=data.get("shirtNumber"),
+            team_id=team.get("id"),
+            team_name=team.get("name"),
+            team_crest=team.get("crest"),
         )
 
     async def _get_json(self, path: str, params: dict | None = None) -> dict:
