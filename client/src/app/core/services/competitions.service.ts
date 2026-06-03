@@ -78,6 +78,20 @@ export interface MatchDetail {
   away_half_time: number | null;
 }
 
+export interface PlayerDetail {
+  id: number;
+  name: string;
+  first_name: string | null;
+  last_name: string | null;
+  date_of_birth: string | null;
+  nationality: string | null;
+  position: string | null;
+  shirt_number: number | null;
+  team_id: number | null;
+  team_name: string | null;
+  team_crest: string | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class CompetitionsService {
   private readonly http = inject(HttpClient);
@@ -99,5 +113,9 @@ export class CompetitionsService {
 
   match(matchId: number): Observable<MatchDetail> {
     return this.http.get<MatchDetail>(`${this.baseUrl}/matches/${matchId}`);
+  }
+
+  player(playerId: number): Observable<PlayerDetail> {
+    return this.http.get<PlayerDetail>(`${this.baseUrl}/players/${playerId}`);
   }
 }
