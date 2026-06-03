@@ -167,6 +167,12 @@
 
 .scorer__name {
   font-weight: 600;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.scorer__name:hover {
+  color: var(--color-accent);
 }
 
 .scorer__team {

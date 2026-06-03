@@ -58,7 +58,9 @@
             <ul class="squad__list">
               @for (player of group.players; track player.id) {
                 <li class="player">
-                  <span class="player__name">{{ player.name }}</span>
+                  <a class="player__name" [routerLink]="['/players', player.id]">{{
+                    player.name
+                  }}</a>
                   <span class="player__position">{{ player.position }}</span>
                   <span class="player__nationality">{{ player.nationality }}</span>
                 </li>

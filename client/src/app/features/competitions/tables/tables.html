@@ -88,7 +88,9 @@
               <li class="scorer">
                 <span class="scorer__rank">{{ i + 1 }}</span>
                 <app-crest [src]="scorer.team_crest" [alt]="scorer.team_name ?? ''" [size]="18" />
-                <span class="scorer__name">{{ scorer.player_name }}</span>
+                <a class="scorer__name" [routerLink]="['/players', scorer.player_id]">{{
+                  scorer.player_name
+                }}</a>
                 <span class="scorer__team">{{ scorer.team_name }}</span>
                 <span class="scorer__goals">{{ scorer.goals ?? 0 }} goals</span>
                 <span class="scorer__assists">{{ scorer.assists ?? 0 }} assists</span>
