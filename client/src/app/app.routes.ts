@@ -1,13 +1,16 @@
 import { Routes } from '@angular/router';
 
-import { authGuard, guestGuard } from './core/guards/auth.guard';
+import { guestGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    canActivate: [authGuard],
-    loadComponent: () => import('./features/home/home').then((m) => m.Home),
+    loadComponent: () => import('./features/apod/apod-view/apod-view').then((m) => m.ApodView),
+  },
+  {
+    path: 'apod/:date',
+    loadComponent: () => import('./features/apod/apod-view/apod-view').then((m) => m.ApodView),
   },
   {
     path: 'login',

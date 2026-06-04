@@ -1,0 +1,94 @@
+@if (state(); as s) {
+  @switch (s.status) {
+    @case ('loading') {
+      <div class="apod apod--loading" role="status" aria-live="polite">
+        <span class="apod__spinner" aria-hidden="true"></span>
+        <span class="apod__loading-label">Loading…</span>
+      </div>
+    }
+    @case ('error') {
+      <div class="apod apod--error" role="alert">
+        <p>{{ s.message }}</p>
+      </div>
+    }
+    @case ('ready') {
+      <article class="apod">
+        <section class="apod__media" [class.apod__media--video]="s.apod.media_type === 'video'">
+          @if (s.apod.media_type === 'image') {
+            <img
+              class="apod__image"
+              [src]="s.apod.url"
+              [alt]="s.apod.title"
+              loading="eager"
+              decoding="async"
+            />
+          } @else {
+            <div class="apod__video-frame">
+              <iframe
+                class="apod__video"
+                [src]="safeVideoUrl()"
+                [title]="s.apod.title"
+                frameborder="0"
+                allow="autoplay; encrypted-media; picture-in-picture"
+                allowfullscreen
+              ></iframe>
+            </div>
+          }
+
+          <div class="apod__overlay">
+            <div class="apod__top">
+              <span class="apod__date-pill">{{ s.apod.date }}</span>
+              <div class="apod__nav">
+                @if (prevDate(); as p) {
+                  <a class="apod__nav-btn" [routerLink]="['/apod', p]" aria-label="Previous day">
+                    ‹
+                  </a>
+                } @else {
+                  <span class="apod__nav-btn apod__nav-btn--disabled" aria-hidden="true">‹</span>
+                }
+                @if (nextDate(); as n) {
+                  <a
+                    class="apod__nav-btn"
+                    [routerLink]="n === today ? ['/'] : ['/apod', n]"
+                    aria-label="Next day"
+                  >
+                    ›
+                  </a>
+                } @else {
+                  <span class="apod__nav-btn apod__nav-btn--disabled" aria-hidden="true">›</span>
+                }
+              </div>
+            </div>
+            <h1 class="apod__title">{{ s.apod.title }}</h1>
+          </div>
+        </section>
+
+        <section class="apod__body">
+          <div class="apod__controls">
+            <label class="apod__date-jump">
+              <span class="apod__date-jump-label">Jump to date</span>
+              <input
+                type="date"
+                [min]="epoch"
+                [max]="today"
+                [value]="currentDate()"
+                (change)="onDateInput($any($event.target).value)"
+              />
+            </label>
+            @if (s.apod.hdurl) {
+              <a class="apod__hd-link" [href]="s.apod.hdurl" target="_blank" rel="noopener">
+                Open HD
+              </a>
+            }
+          </div>
+
+          <p class="apod__explanation">{{ s.apod.explanation }}</p>
+
+          @if (s.apod.copyright) {
+            <p class="apod__copyright">© {{ s.apod.copyright }}</p>
+          }
+        </section>
+      </article>
+    }
+  }
+}
