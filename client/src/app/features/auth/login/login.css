@@ -9,10 +9,12 @@
 .auth__card {
   width: 100%;
   max-width: 400px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background-color: var(--color-surface);
-  box-shadow: var(--shadow-card);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(180deg, rgba(24, 34, 47, 0.7), rgba(15, 22, 34, 0.7));
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-card), var(--shadow-glow);
   padding: var(--space-8);
 }
 
