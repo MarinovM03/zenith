@@ -1,12 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
-import { provideRouter } from '@angular/router';
 
 import { Home } from './home';
 import { AuthService, User } from '../../core/services/auth.service';
 
 describe('Home', () => {
-  it('greets the current user by email', () => {
+  it('greets the signed-in user', () => {
     const user: User = {
       id: 'u1',
       email: 'martin@example.com',
@@ -15,16 +14,12 @@ describe('Home', () => {
     };
     TestBed.configureTestingModule({
       imports: [Home],
-      providers: [
-        provideRouter([]),
-        {
-          provide: AuthService,
-          useValue: { user: signal(user).asReadonly() },
-        },
-      ],
+      providers: [{ provide: AuthService, useValue: { user: signal(user).asReadonly() } }],
     });
     const fixture = TestBed.createComponent(Home);
     fixture.detectChanges();
-    expect(fixture.nativeElement.textContent).toContain('martin@example.com');
+    const text = fixture.nativeElement.textContent;
+    expect(text).toContain('Zenith');
+    expect(text).toContain('martin@example.com');
   });
 });

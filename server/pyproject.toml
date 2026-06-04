@@ -3,9 +3,9 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "acca-server"
+name = "zenith-server"
 version = "0.1.0"
-description = "Acca backend."
+description = "Zenith backend — space-exploration discovery API."
 requires-python = ">=3.12"
 license = { text = "Proprietary" }
 authors = [{ name = "Martin Marinov" }]

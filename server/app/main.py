@@ -8,8 +8,8 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
 from app.core.config import get_settings
-from app.routers import auth, bets, competitions, fixtures, health
-from app.services.football_data import close_shared_http_client
+from app.routers import auth, health
+from app.services.http_client import close_shared_http_client
 
 
 def configure_logging(level: str) -> None:
@@ -30,7 +30,7 @@ def create_app() -> FastAPI:
     configure_logging(settings.log_level)
 
     app = FastAPI(
-        title="Acca API",
+        title="Zenith API",
         version="0.1.0",
         lifespan=lifespan,
     )
@@ -48,12 +48,9 @@ def create_app() -> FastAPI:
 
     app.include_router(health.router)
     app.include_router(auth.router)
-    app.include_router(fixtures.router)
-    app.include_router(bets.router)
-    app.include_router(competitions.router)
 
     logging.getLogger(__name__).info(
-        "Acca API started in %s mode (CORS origins: %s)",
+        "Zenith API started in %s mode (CORS origins: %s)",
         settings.environment,
         settings.cors_origins_list,
     )

@@ -1,17 +1,21 @@
-# Acca
+# Zenith
 
-Real-time football accumulator tracker. Log multi-leg bets, watch them resolve live as matches unfold, and analyse your long-term performance. Built with Angular 21, FastAPI, PostgreSQL, and Redis. A tracking and analytics tool — not a gambling platform.
+A space-exploration discovery app — NASA's Astronomy Picture of the Day, rocket launches with live countdowns, Mars rover photography, and near-Earth asteroids. Built as an installable PWA with Angular 21, FastAPI, PostgreSQL, and Redis.
+
+> Pivoted from an earlier football project; the git history shows that evolution.
 
 ---
 
 ## Prerequisites
 
-| Tool                | Version       |
-|---------------------|---------------|
-| Node.js             | 20.x or 22.x  |
-| Python              | 3.12          |
-| Docker Desktop      | latest        |
-| Git                 | any recent    |
+| Tool           | Version       |
+| -------------- | ------------- |
+| Node.js        | 20.x or 22.x  |
+| Python         | 3.12          |
+| Docker Desktop | latest        |
+| Git            | any recent    |
+
+You also need a free **NASA API key** from <https://api.nasa.gov> (instant). Launch Library 2 needs no key.
 
 ---
 
@@ -25,7 +29,7 @@ docker compose up -d
 
 ### 2. Backend env file
 
-Create `server/.env` with the variables listed under [Environment variables](#environment-variables) below.
+Create `server/.env` with the variables under [Environment variables](#environment-variables).
 
 ### 3. Backend
 
@@ -34,14 +38,13 @@ cd server
 py -V:3.12 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -e ".[dev]"
+alembic upgrade head
 uvicorn app.main:app --reload --port 8001
 ```
 
-API at <http://localhost:8001>. Interactive docs at <http://localhost:8001/docs>.
+API at <http://localhost:8001>, docs at <http://localhost:8001/docs>.
 
 ### 4. Frontend
-
-In a separate terminal:
 
 ```powershell
 cd client
@@ -73,17 +76,17 @@ alembic revision --autogenerate -m "<message>"
 
 ```powershell
 cd client
-npm start                             # ng serve on :4200
-npx ng test --watch=false             # vitest
-npm run build                         # production build
+npm start                  # ng serve on :4200
+npx ng test --watch=false  # vitest
+npm run build              # production build
 ```
 
 ### Dependencies
 
 ```powershell
 docker compose up -d
-docker compose down                   # stop, keep data
-docker compose down -v                # stop AND wipe data
+docker compose down        # stop, keep data
+docker compose down -v     # stop AND wipe data
 ```
 
 ---
@@ -95,9 +98,9 @@ Source of truth is `server/app/core/config.py`. The frontend reads `client/src/e
 Required in `server/.env`:
 
 ```
-POSTGRES_USER=acca
+POSTGRES_USER=zenith
 POSTGRES_PASSWORD=<choose one>
-POSTGRES_DB=acca
+POSTGRES_DB=zenith
 POSTGRES_HOST=localhost
 POSTGRES_PORT=5432
 
@@ -108,8 +111,7 @@ JWT_SECRET=<long random string>
 
 CORS_ORIGINS=http://localhost:4200
 
-API_FOOTBALL_KEY=<your key from api-football.com>
-API_FOOTBALL_BASE_URL=https://v3.football.api-sports.io
+NASA_API_KEY=<your key from api.nasa.gov>
 ```
 
 Never commit `.env`. `.gitignore` enforces this.
@@ -118,4 +120,4 @@ Never commit `.env`. `.gitignore` enforces this.
 
 ## Architecture
 
-See [`docs/adr/`](docs/adr/README.md). Start with [ADR-0001](docs/adr/0001-stack-and-layered-architecture.md).
+See [`CLAUDE.md`](CLAUDE.md) for the full brief and conventions. Significant decisions are in [`docs/adr/`](docs/adr/README.md).

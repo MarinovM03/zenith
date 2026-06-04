@@ -15,9 +15,9 @@ class Settings(BaseSettings):
     environment: str = Field(default="development")
     log_level: str = Field(default="INFO")
 
-    postgres_user: str = Field(default="acca")
-    postgres_password: str = Field(default="acca_dev_password")
-    postgres_db: str = Field(default="acca")
+    postgres_user: str = Field(default="zenith")
+    postgres_password: str = Field(default="zenith_dev_password")
+    postgres_db: str = Field(default="zenith")
     postgres_host: str = Field(default="localhost")
     postgres_port: int = Field(default=5432)
 
@@ -32,8 +32,9 @@ class Settings(BaseSettings):
 
     cors_origins: str = Field(default="http://localhost:4200")
 
-    football_data_api_key: str = Field(default="")
-    football_data_base_url: str = Field(default="https://api.football-data.org/v4")
+    nasa_api_key: str = Field(default="DEMO_KEY")
+    nasa_base_url: str = Field(default="https://api.nasa.gov")
+    launch_library_base_url: str = Field(default="https://ll.thespacedevs.com/2.2.0")
 
     @computed_field  # type: ignore[prop-decorator]
     @property

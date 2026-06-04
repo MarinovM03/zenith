@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
 
 import { AuthService } from '../../core/services/auth.service';
 
@@ -7,7 +6,6 @@ import { AuthService } from '../../core/services/auth.service';
   selector: 'app-home',
   templateUrl: './home.html',
   styleUrl: './home.css',
-  imports: [RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Home {
