@@ -14,6 +14,12 @@ export const routes: Routes = [
     loadComponent: () => import('./features/apod/apod-view/apod-view').then((m) => m.ApodView),
   },
   {
+    path: 'apod/archive',
+    pathMatch: 'full',
+    loadComponent: () =>
+      import('./features/apod/apod-gallery/apod-gallery').then((m) => m.ApodGallery),
+  },
+  {
     path: 'apod/:date',
     loadComponent: () => import('./features/apod/apod-view/apod-view').then((m) => m.ApodView),
   },

@@ -1,0 +1,66 @@
+<main class="gallery">
+  <header class="gallery__head">
+    <div>
+      <h1 class="gallery__title">Archive</h1>
+      <p class="gallery__sub">Every Astronomy Picture of the Day, back to 1995.</p>
+    </div>
+    <div class="gallery__controls">
+      <a class="gallery__today" routerLink="/apod">Today →</a>
+      <label class="gallery__jump">
+        <span class="gallery__jump-label">Jump to date</span>
+        <input
+          type="date"
+          [min]="epoch"
+          [max]="today"
+          (change)="onDateInput($any($event.target).value)"
+        />
+      </label>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <div class="gallery__state" role="status" aria-live="polite">
+      <span class="gallery__spinner" aria-hidden="true"></span>
+    </div>
+  } @else if (error() && items().length === 0) {
+    <div class="gallery__state gallery__state--error" role="alert">
+      <p>Couldn't load the archive.</p>
+      <button type="button" class="gallery__retry" (click)="retry()">Try again</button>
+    </div>
+  } @else {
+    <div class="gallery__grid">
+      @for (apod of items(); track apod.date) {
+        <a class="card" [routerLink]="['/apod', apod.date]">
+          <span class="card__thumb">
+            @if (thumb(apod); as src) {
+              <img [src]="src" [alt]="apod.title" loading="lazy" decoding="async" />
+            } @else {
+              <span class="card__noimg" aria-hidden="true">▦</span>
+            }
+            @if (apod.media_type === 'video') {
+              <span class="card__badge">Video</span>
+            }
+          </span>
+          <span class="card__date">{{ apod.date }}</span>
+          <span class="card__title">{{ apod.title }}</span>
+        </a>
+      }
+    </div>
+
+    @if (canLoadOlder()) {
+      <div class="gallery__more">
+        @if (error()) {
+          <p class="gallery__more-error">Couldn't load older pictures.</p>
+        }
+        <button
+          type="button"
+          class="gallery__load"
+          (click)="loadOlder()"
+          [disabled]="loadingMore()"
+        >
+          {{ loadingMore() ? 'Loading…' : 'Load older' }}
+        </button>
+      </div>
+    }
+  }
+</main>

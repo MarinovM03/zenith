@@ -75,11 +75,14 @@
                 (change)="onDateInput($any($event.target).value)"
               />
             </label>
-            @if (s.apod.hdurl) {
-              <a class="apod__hd-link" [href]="s.apod.hdurl" target="_blank" rel="noopener">
-                Open HD
-              </a>
-            }
+            <div class="apod__actions">
+              <a class="apod__archive-link" routerLink="/apod/archive">Browse archive</a>
+              @if (s.apod.hdurl) {
+                <a class="apod__hd-link" [href]="s.apod.hdurl" target="_blank" rel="noopener">
+                  Open HD
+                </a>
+              }
+            </div>
           </div>
 
           <p class="apod__explanation">{{ s.apod.explanation }}</p>
