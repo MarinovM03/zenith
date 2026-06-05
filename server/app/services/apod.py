@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from datetime import UTC, date, datetime, timedelta
 from typing import Any
@@ -12,9 +13,13 @@ logger = logging.getLogger(__name__)
 
 APOD_EPOCH = date(1995, 6, 16)
 CACHE_TTL_SECONDS = 24 * 60 * 60
-NEGATIVE_CACHE_TTL_SECONDS = 60
+NEGATIVE_CACHE_TTL_SECONDS = 20
 MAX_RANGE_DAYS = 30
 NEGATIVE_SENTINEL = {"__missing__": True}
+
+UPSTREAM_RETRIES = 2
+UPSTREAM_BACKOFF_SECONDS = 0.5
+UPSTREAM_TIMEOUT_SECONDS = 10.0
 
 
 def _today_utc() -> date:
@@ -82,6 +87,11 @@ class NasaApodService:
         try:
             raw = await self._fetch_single(target)
         except httpx.HTTPError as exc:
+            if isinstance(exc, httpx.HTTPStatusError) and exc.response.status_code == 404:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="no APOD for this date",
+                ) from exc
             await self._cache.set(_cache_key(target), NEGATIVE_SENTINEL, NEGATIVE_CACHE_TTL_SECONDS)
             logger.warning("NASA APOD fetch failed for %s: %s", target, exc)
             raise HTTPException(
@@ -144,23 +154,44 @@ class NasaApodService:
 
         return [Apod.model_validate(results[d]) for d in days if d in results]
 
+    async def _request_json(self, params: dict[str, Any]) -> Any:
+        """GET the APOD endpoint, retrying transient failures (timeouts, 5xx).
+        Client errors such as 404 are raised immediately — retrying won't help."""
+        url = f"{self._base_url}/planetary/apod"
+        last_exc: httpx.HTTPError | None = None
+        for attempt in range(UPSTREAM_RETRIES + 1):
+            try:
+                response = await self._http.get(
+                    url, params=params, timeout=UPSTREAM_TIMEOUT_SECONDS
+                )
+                response.raise_for_status()
+                return response.json()
+            except httpx.HTTPStatusError as exc:
+                if exc.response.status_code < 500:
+                    raise
+                last_exc = exc
+            except httpx.HTTPError as exc:
+                last_exc = exc
+            if attempt < UPSTREAM_RETRIES:
+                await asyncio.sleep(UPSTREAM_BACKOFF_SECONDS * (attempt + 1))
+        assert last_exc is not None
+        raise last_exc
+
     async def _fetch_single(self, day: date) -> dict[str, Any]:
-        params = {
-            "api_key": self._api_key,
-            "date": day.isoformat(),
-            "thumbs": "true",
-        }
-        response = await self._http.get(f"{self._base_url}/planetary/apod", params=params)
-        response.raise_for_status()
-        return response.json()
+        return await self._request_json(
+            {
+                "api_key": self._api_key,
+                "date": day.isoformat(),
+                "thumbs": "true",
+            }
+        )
 
     async def _fetch_range(self, start: date, end: date) -> list[dict[str, Any]]:
-        params = {
-            "api_key": self._api_key,
-            "start_date": start.isoformat(),
-            "end_date": end.isoformat(),
-            "thumbs": "true",
-        }
-        response = await self._http.get(f"{self._base_url}/planetary/apod", params=params)
-        response.raise_for_status()
-        return response.json()
+        return await self._request_json(
+            {
+                "api_key": self._api_key,
+                "start_date": start.isoformat(),
+                "end_date": end.isoformat(),
+                "thumbs": "true",
+            }
+        )

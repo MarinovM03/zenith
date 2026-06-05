@@ -35,6 +35,12 @@ def _client(handler: Callable[[httpx.Request], httpx.Response]) -> httpx.AsyncCl
     return httpx.AsyncClient(transport=httpx.MockTransport(handler))
 
 
+@pytest.fixture(autouse=True)
+def _no_backoff(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Keep retry tests instant by removing the backoff sleep."""
+    monkeypatch.setattr("app.services.apod.UPSTREAM_BACKOFF_SECONDS", 0)
+
+
 @pytest.fixture
 def cache() -> JsonCache:
     return JsonCache(FakeRedis(decode_responses=True))
@@ -102,6 +108,47 @@ async def test_get_caches_negative_on_upstream_error(cache: JsonCache) -> None:
 
     assert exc_info.value.status_code == 502
     assert await cache.get(_cache_key(target)) == NEGATIVE_SENTINEL
+
+
+@pytest.mark.asyncio
+async def test_get_retries_transient_failure_then_succeeds(cache: JsonCache) -> None:
+    target = date(2026, 5, 1)
+    calls = 0
+
+    def handler(_: httpx.Request) -> httpx.Response:
+        nonlocal calls
+        calls += 1
+        if calls == 1:
+            return httpx.Response(503)
+        return httpx.Response(200, json=_sample(target))
+
+    async with _client(handler) as http:
+        service = _service(http, cache)
+        result = await service.get(target)
+
+    assert result.date == target
+    assert calls == 2
+    assert await cache.get(_cache_key(target)) is not None
+
+
+@pytest.mark.asyncio
+async def test_get_does_not_retry_or_poison_on_404(cache: JsonCache) -> None:
+    target = date(2026, 5, 1)
+    calls = 0
+
+    def handler(_: httpx.Request) -> httpx.Response:
+        nonlocal calls
+        calls += 1
+        return httpx.Response(404)
+
+    async with _client(handler) as http:
+        service = _service(http, cache)
+        with pytest.raises(HTTPException) as exc_info:
+            await service.get(target)
+
+    assert exc_info.value.status_code == 404
+    assert calls == 1
+    assert await cache.get(_cache_key(target)) is None
 
 
 @pytest.mark.asyncio
