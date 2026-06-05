@@ -124,6 +124,19 @@ img[appImgFade].is-loaded {
   }
 }
 
+/* Cross-fade between routes (View Transitions API, opt-in via the router). */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.25s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}
+
 /* Slim, themed scrollbars */
 * {
   scrollbar-width: thin;
