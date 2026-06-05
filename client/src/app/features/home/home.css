@@ -5,7 +5,6 @@
   padding: var(--space-6) var(--space-4) var(--space-10);
 }
 
-/* ---- Hero ---- */
 .hero {
   margin-bottom: var(--space-10);
 }
@@ -117,22 +116,6 @@
   font-weight: 600;
 }
 
-.hero__spinner {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  border: 2px solid var(--color-border-strong);
-  border-top-color: var(--color-accent);
-  animation: hero-spin 0.9s linear infinite;
-}
-
-@keyframes hero-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* ---- Explore grid ---- */
 .explore__heading {
   margin: 0 0 var(--space-4) 0;
   font-size: 1.25rem;
@@ -220,8 +203,5 @@ a.tile:hover {
   .hero__media,
   .tile {
     transition: none;
-  }
-  .hero__spinner {
-    animation-duration: 2.5s;
   }
 }

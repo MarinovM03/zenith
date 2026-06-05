@@ -12,6 +12,8 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 
+import { ImgFade } from '../../../shared/img-fade/img-fade';
+import { Skeleton } from '../../../shared/skeleton/skeleton';
 import { Apod, APOD_EPOCH, shiftDate, todayIso } from '../apod.model';
 import { ApodService } from '../apod.service';
 
@@ -24,7 +26,7 @@ type LoadState =
   selector: 'app-apod-view',
   templateUrl: './apod-view.html',
   styleUrl: './apod-view.css',
-  imports: [RouterLink],
+  imports: [RouterLink, Skeleton, ImgFade],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ApodView {
@@ -72,13 +74,27 @@ export class ApodView {
       .getByDate(date)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (apod) => this.state.set({ status: 'ready', apod }),
+        next: (apod) => {
+          this.state.set({ status: 'ready', apod });
+          this.prefetchAdjacent();
+        },
         error: () =>
           this.state.set({
             status: 'error',
             message: "Couldn't load this picture. Try again.",
           }),
       });
+  }
+
+  private prefetchAdjacent(): void {
+    for (const date of [this.prevDate(), this.nextDate()]) {
+      if (date) {
+        this.service
+          .getByDate(date)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({ error: () => undefined });
+      }
+    }
   }
 
   protected onDateInput(value: string): void {

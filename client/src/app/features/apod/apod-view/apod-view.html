@@ -1,9 +1,14 @@
 @if (state(); as s) {
   @switch (s.status) {
     @case ('loading') {
-      <div class="apod apod--loading" role="status" aria-live="polite">
-        <span class="apod__spinner" aria-hidden="true"></span>
-        <span class="apod__loading-label">Loading…</span>
+      <div class="apod" role="status" aria-live="polite" aria-label="Loading picture">
+        <app-skeleton height="60vh" radius="var(--radius-xl)" />
+        <div class="apod__body">
+          <app-skeleton width="45%" height="1.6rem" />
+          <app-skeleton width="100%" height="1rem" />
+          <app-skeleton width="92%" height="1rem" />
+          <app-skeleton width="80%" height="1rem" />
+        </div>
       </div>
     }
     @case ('error') {
@@ -17,6 +22,7 @@
           @if (s.apod.media_type === 'image') {
             <img
               class="apod__image"
+              appImgFade
               [src]="s.apod.url"
               [alt]="s.apod.title"
               loading="eager"
@@ -75,11 +81,14 @@
                 (change)="onDateInput($any($event.target).value)"
               />
             </label>
-            @if (s.apod.hdurl) {
-              <a class="apod__hd-link" [href]="s.apod.hdurl" target="_blank" rel="noopener">
-                Open HD
-              </a>
-            }
+            <div class="apod__actions">
+              <a class="apod__archive-link" routerLink="/apod/archive">Browse archive</a>
+              @if (s.apod.hdurl) {
+                <a class="apod__hd-link" [href]="s.apod.hdurl" target="_blank" rel="noopener">
+                  Open HD
+                </a>
+              }
+            </div>
           </div>
 
           <p class="apod__explanation">{{ s.apod.explanation }}</p>

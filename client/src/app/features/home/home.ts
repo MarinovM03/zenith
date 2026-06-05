@@ -3,6 +3,8 @@ import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 
+import { ImgFade } from '../../shared/img-fade/img-fade';
+import { Skeleton } from '../../shared/skeleton/skeleton';
 import { Apod } from '../apod/apod.model';
 import { ApodService } from '../apod/apod.service';
 
@@ -22,7 +24,7 @@ type HeroState = { status: 'loading' } | { status: 'ready'; apod: Apod } | { sta
   selector: 'app-home',
   templateUrl: './home.html',
   styleUrl: './home.css',
-  imports: [RouterLink, NgTemplateOutlet],
+  imports: [RouterLink, NgTemplateOutlet, Skeleton, ImgFade],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Home {

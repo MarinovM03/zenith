@@ -107,6 +107,36 @@ h3 {
   letter-spacing: -0.02em;
 }
 
+/* Images fade in once decoded (see ImgFade directive) instead of popping in. */
+img[appImgFade] {
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+
+img[appImgFade].is-loaded {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  img[appImgFade] {
+    opacity: 1;
+    transition: none;
+  }
+}
+
+/* Cross-fade between routes (View Transitions API, opt-in via the router). */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.25s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}
+
 /* Slim, themed scrollbars */
 * {
   scrollbar-width: thin;

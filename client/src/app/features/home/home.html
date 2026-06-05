@@ -5,7 +5,7 @@
         @case ('ready') {
           <a class="hero__media" routerLink="/apod" aria-label="Open today's picture">
             @if (heroImage(h.apod); as img) {
-              <img class="hero__img" [src]="img" [alt]="h.apod.title" decoding="async" />
+              <img class="hero__img" appImgFade [src]="img" [alt]="h.apod.title" decoding="async" />
             }
             <div class="hero__scrim"></div>
             <div class="hero__content">
@@ -16,9 +16,12 @@
           </a>
         }
         @case ('loading') {
-          <div class="hero__placeholder" role="status" aria-live="polite">
-            <span class="hero__spinner" aria-hidden="true"></span>
-          </div>
+          <app-skeleton
+            height="clamp(320px, 56vh, 560px)"
+            radius="var(--radius-xl)"
+            role="status"
+            aria-label="Loading today's picture"
+          />
         }
         @case ('error') {
           <div class="hero__placeholder hero__placeholder--error">

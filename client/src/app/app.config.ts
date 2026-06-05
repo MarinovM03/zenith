@@ -6,7 +6,7 @@ import {
   inject,
 } from '@angular/core';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withViewTransitions } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 
 import { routes } from './app.routes';
@@ -18,7 +18,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
-    provideRouter(routes),
+    provideRouter(routes, withViewTransitions()),
     provideAppInitializer(() => firstValueFrom(inject(AuthService).initialize())),
   ],
 };

@@ -1,0 +1,219 @@
+.gallery {
+  display: block;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-4) var(--space-10);
+}
+
+.gallery__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.gallery__title {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+
+.gallery__sub {
+  margin: var(--space-1) 0 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.gallery__controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.gallery__today {
+  color: var(--color-text);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  padding: var(--space-2) var(--space-4);
+}
+
+.gallery__today:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.gallery__jump {
+  display: inline-flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.gallery__jump input[type='date'] {
+  background-color: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.9rem;
+  color-scheme: dark;
+}
+
+.gallery__jump input[type='date']:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.gallery__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--space-4);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: linear-gradient(180deg, rgba(24, 34, 47, 0.55), rgba(15, 22, 34, 0.55));
+  box-shadow: var(--shadow-card);
+  padding: var(--space-2);
+  text-decoration: none;
+  color: var(--color-text);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(182, 242, 58, 0.25);
+  box-shadow: var(--shadow-pop), var(--shadow-glow);
+}
+
+.card--skeleton {
+  pointer-events: none;
+}
+
+.card__thumb {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background-color: #000;
+}
+
+.card__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card__noimg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--color-text-muted);
+  font-size: 1.5rem;
+}
+
+.card__badge {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-on-accent);
+  background: var(--color-accent);
+  border-radius: var(--radius-pill);
+  padding: 1px var(--space-2);
+}
+
+.card__date {
+  padding: 0 var(--space-1);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+.card__title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  padding: 0 var(--space-1) var(--space-1);
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.gallery__state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  min-height: 40vh;
+  color: var(--color-text-muted);
+}
+
+.gallery__more {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-8);
+}
+
+.gallery__more-error {
+  margin: 0;
+  color: var(--color-danger);
+  font-size: 0.85rem;
+}
+
+.gallery__load,
+.gallery__retry {
+  background: transparent;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 600;
+  padding: var(--space-3) var(--space-6);
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    color 0.18s ease;
+}
+
+.gallery__load:hover:not(:disabled),
+.gallery__retry:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.gallery__load:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    transition: none;
+  }
+}
