@@ -8,7 +8,7 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
 from app.core.config import get_settings
-from app.routers import apod, auth, health
+from app.routers import apod, auth, health, launch
 from app.services.http_client import close_shared_http_client
 
 
@@ -49,6 +49,7 @@ def create_app() -> FastAPI:
     app.include_router(health.router)
     app.include_router(auth.router)
     app.include_router(apod.router)
+    app.include_router(launch.router)
 
     logging.getLogger(__name__).info(
         "Zenith API started in %s mode (CORS origins: %s)",
