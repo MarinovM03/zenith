@@ -84,7 +84,7 @@ export class ApodView {
   protected onDateInput(value: string): void {
     if (!value) return;
     if (value === this.today) {
-      this.router.navigateByUrl('/');
+      this.router.navigateByUrl('/apod');
     } else {
       this.router.navigate(['/apod', value]);
     }

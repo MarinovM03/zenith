@@ -6,6 +6,11 @@ export const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
+    loadComponent: () => import('./features/home/home').then((m) => m.Home),
+  },
+  {
+    path: 'apod',
+    pathMatch: 'full',
     loadComponent: () => import('./features/apod/apod-view/apod-view').then((m) => m.ApodView),
   },
   {

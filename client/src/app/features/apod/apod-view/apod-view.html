@@ -49,7 +49,7 @@
                 @if (nextDate(); as n) {
                   <a
                     class="apod__nav-btn"
-                    [routerLink]="n === today ? ['/'] : ['/apod', n]"
+                    [routerLink]="n === today ? ['/apod'] : ['/apod', n]"
                     aria-label="Next day"
                   >
                     ›
