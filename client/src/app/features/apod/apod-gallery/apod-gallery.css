@@ -100,6 +100,10 @@
   box-shadow: var(--shadow-pop), var(--shadow-glow);
 }
 
+.card--skeleton {
+  pointer-events: none;
+}
+
 .card__thumb {
   position: relative;
   display: block;
@@ -168,21 +172,6 @@
   color: var(--color-text-muted);
 }
 
-.gallery__spinner {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 2px solid var(--color-border-strong);
-  border-top-color: var(--color-accent);
-  animation: gallery-spin 0.9s linear infinite;
-}
-
-@keyframes gallery-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 .gallery__more {
   display: flex;
   flex-direction: column;
@@ -226,8 +215,5 @@
 @media (prefers-reduced-motion: reduce) {
   .card {
     transition: none;
-  }
-  .gallery__spinner {
-    animation-duration: 2.5s;
   }
 }

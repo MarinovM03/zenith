@@ -12,6 +12,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 
+import { Skeleton } from '../../../shared/skeleton/skeleton';
 import { Apod, APOD_EPOCH, shiftDate, todayIso } from '../apod.model';
 import { ApodService } from '../apod.service';
 
@@ -24,7 +25,7 @@ type LoadState =
   selector: 'app-apod-view',
   templateUrl: './apod-view.html',
   styleUrl: './apod-view.css',
-  imports: [RouterLink],
+  imports: [RouterLink, Skeleton],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ApodView {

@@ -16,9 +16,12 @@
           </a>
         }
         @case ('loading') {
-          <div class="hero__placeholder" role="status" aria-live="polite">
-            <span class="hero__spinner" aria-hidden="true"></span>
-          </div>
+          <app-skeleton
+            height="clamp(320px, 56vh, 560px)"
+            radius="var(--radius-xl)"
+            role="status"
+            aria-label="Loading today's picture"
+          />
         }
         @case ('error') {
           <div class="hero__placeholder hero__placeholder--error">

@@ -9,6 +9,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 
+import { Skeleton } from '../../../shared/skeleton/skeleton';
 import { Apod, APOD_EPOCH, shiftDate, todayIso } from '../apod.model';
 import { ApodService } from '../apod.service';
 
@@ -18,10 +19,12 @@ const PAGE_DAYS = 30;
   selector: 'app-apod-gallery',
   templateUrl: './apod-gallery.html',
   styleUrl: './apod-gallery.css',
-  imports: [RouterLink],
+  imports: [RouterLink, Skeleton],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ApodGallery {
+  protected readonly skeletonSlots = Array.from({ length: 8 }, (_, i) => i);
+
   private readonly service = inject(ApodService);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);

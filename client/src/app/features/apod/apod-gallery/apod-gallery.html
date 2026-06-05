@@ -19,8 +19,14 @@
   </header>
 
   @if (loading()) {
-    <div class="gallery__state" role="status" aria-live="polite">
-      <span class="gallery__spinner" aria-hidden="true"></span>
+    <div class="gallery__grid" role="status" aria-label="Loading archive">
+      @for (slot of skeletonSlots; track slot) {
+        <div class="card card--skeleton">
+          <app-skeleton height="8rem" radius="var(--radius-md)" />
+          <app-skeleton width="40%" height="0.7rem" />
+          <app-skeleton width="85%" height="0.9rem" />
+        </div>
+      }
     </div>
   } @else if (error() && items().length === 0) {
     <div class="gallery__state gallery__state--error" role="alert">
