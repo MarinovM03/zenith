@@ -1,61 +1,109 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { of, throwError } from 'rxjs';
+import { of } from 'rxjs';
 
 import { Home } from './home';
 import { Apod } from '../apod/apod.model';
 import { ApodService } from '../apod/apod.service';
+import { Asteroid } from '../asteroids/asteroid.model';
+import { AsteroidService } from '../asteroids/asteroid.service';
+import { Launch } from '../launches/launch.model';
+import { LaunchService } from '../launches/launch.service';
+import { MarsPhoto } from '../mars/mars.model';
+import { MarsService } from '../mars/mars.service';
 
 const APOD: Apod = {
-  date: '2026-06-05',
+  date: '2026-06-06',
   title: 'The Hydra Cluster of Galaxies',
-  explanation: 'A cluster of galaxies.',
+  explanation: '',
   url: 'https://example.test/hydra.jpg',
-  hdurl: 'https://example.test/hydra-hd.jpg',
+  hdurl: null,
   media_type: 'image',
   copyright: null,
   thumbnail_url: null,
 };
 
-function configure(serviceMock: Partial<ApodService>) {
+const LAUNCH: Launch = {
+  id: 'abc',
+  name: 'Falcon 9 | Starlink',
+  status: { name: 'Go for Launch', abbrev: 'Go' },
+  net: new Date(Date.now() + 86_400_000).toISOString(),
+  provider: 'SpaceX',
+  rocket: 'Falcon 9',
+  mission: null,
+  mission_description: null,
+  pad: null,
+  location: null,
+  image: null,
+  webcast_url: null,
+};
+
+function asteroid(hazardous: boolean): Asteroid {
+  return {
+    id: Math.random().toString(),
+    name: 'Rock',
+    hazardous,
+    diameter_min_m: 10,
+    diameter_max_m: 20,
+    approach_date: '2026-06-06',
+    miss_distance_km: 100000,
+    miss_distance_lunar: 0.3,
+    velocity_kps: 12,
+  };
+}
+
+const MARS: MarsPhoto = {
+  id: 'm1',
+  sol: 1882,
+  earth_date: '2026-06-06',
+  camera: 'NAVCAM_LEFT',
+  img_src: 'https://mars.test/s.jpg',
+  full_src: 'https://mars.test/l.jpg',
+  rover: 'Perseverance',
+};
+
+function configure() {
   TestBed.configureTestingModule({
     imports: [Home],
-    providers: [provideRouter([]), { provide: ApodService, useValue: serviceMock }],
+    providers: [
+      provideRouter([]),
+      { provide: ApodService, useValue: { getByDate: () => of(APOD) } },
+      { provide: LaunchService, useValue: { getUpcoming: () => of([LAUNCH]) } },
+      {
+        provide: AsteroidService,
+        useValue: { getFeed: () => of([asteroid(true), asteroid(false)]) },
+      },
+      { provide: MarsService, useValue: { getPhotos: () => of([MARS]) } },
+    ],
   });
 }
 
+async function settle(fixture: ReturnType<typeof TestBed.createComponent>) {
+  fixture.detectChanges();
+  await fixture.whenStable();
+  fixture.detectChanges();
+}
+
 describe('Home', () => {
-  it('renders the explore tiles', () => {
-    configure({ getByDate: () => of(APOD) });
+  it('shows the APOD hero and live dashboard data', async () => {
+    configure();
     const fixture = TestBed.createComponent(Home);
-    fixture.detectChanges();
+    await settle(fixture);
 
     const text = fixture.nativeElement.textContent ?? '';
-    expect(text).toContain('Explore');
-    expect(text).toContain('Picture of the Day');
-    expect(text).toContain('Rocket Launches');
-    expect(text).toContain('Near-Earth Asteroids');
+    expect(text).toContain('The Hydra Cluster of Galaxies');
+    expect(text).toContain('Falcon 9 | Starlink');
+    expect(text).toContain('Next launch');
+    expect(text).toContain('potentially hazardous');
+    expect(text).toContain('Sol 1882');
   });
 
-  it('shows the featured picture once it loads', async () => {
-    configure({ getByDate: () => of(APOD) });
+  it('shows the hazardous asteroid count', async () => {
+    configure();
     const fixture = TestBed.createComponent(Home);
-    fixture.detectChanges();
-    await fixture.whenStable();
-    fixture.detectChanges();
+    await settle(fixture);
 
-    expect(fixture.nativeElement.textContent).toContain('The Hydra Cluster of Galaxies');
-  });
-
-  it('still renders the explore grid when the hero fails', async () => {
-    configure({ getByDate: () => throwError(() => new Error('boom')) });
-    const fixture = TestBed.createComponent(Home);
-    fixture.detectChanges();
-    await fixture.whenStable();
-    fixture.detectChanges();
-
-    const text = fixture.nativeElement.textContent ?? '';
-    expect(text).toContain('Rocket Launches');
-    expect(text).toContain('Open the archive');
+    const haz = fixture.nativeElement.querySelector('.dash__haz');
+    expect(haz?.textContent?.trim()).toBe('1');
   });
 });

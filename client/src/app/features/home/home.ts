@@ -1,4 +1,3 @@
-import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
@@ -7,70 +6,99 @@ import { ImgFade } from '../../shared/img-fade/img-fade';
 import { Skeleton } from '../../shared/skeleton/skeleton';
 import { Apod } from '../apod/apod.model';
 import { ApodService } from '../apod/apod.service';
-
-type IconKey = 'apod' | 'launch' | 'mars' | 'asteroid';
-
-interface ExploreTile {
-  readonly title: string;
-  readonly description: string;
-  readonly link: string | null;
-  readonly soon: boolean;
-  readonly icon: IconKey;
-}
+import { AsteroidService } from '../asteroids/asteroid.service';
+import { Countdown } from '../launches/countdown/countdown';
+import { Launch } from '../launches/launch.model';
+import { LaunchService } from '../launches/launch.service';
+import { MarsPhoto } from '../mars/mars.model';
+import { MarsService } from '../mars/mars.service';
 
 type HeroState = { status: 'loading' } | { status: 'ready'; apod: Apod } | { status: 'error' };
+
+interface AsteroidStats {
+  total: number;
+  hazardous: number;
+}
+
+function todayIso(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function shiftIso(iso: string, days: number): string {
+  const d = new Date(`${iso}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
+}
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.html',
   styleUrl: './home.css',
-  imports: [RouterLink, NgTemplateOutlet, Skeleton, ImgFade],
+  imports: [RouterLink, ImgFade, Skeleton, Countdown],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Home {
-  private readonly service = inject(ApodService);
+  private readonly apod = inject(ApodService);
+  private readonly launches = inject(LaunchService);
+  private readonly asteroids = inject(AsteroidService);
+  private readonly mars = inject(MarsService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly hero = signal<HeroState>({ status: 'loading' });
 
-  protected readonly tiles: readonly ExploreTile[] = [
-    {
-      title: 'Picture of the Day',
-      description: "NASA's daily astronomy image, with a browsable archive back to 1995.",
-      link: '/apod',
-      soon: false,
-      icon: 'apod',
-    },
-    {
-      title: 'Rocket Launches',
-      description: 'Upcoming and past launches across every provider, with live countdowns.',
-      link: '/launches',
-      soon: false,
-      icon: 'launch',
-    },
-    {
-      title: 'Mars Rover',
-      description: 'Photographs from the rovers exploring the surface of Mars.',
-      link: '/mars',
-      soon: false,
-      icon: 'mars',
-    },
-    {
-      title: 'Near-Earth Asteroids',
-      description: 'Watch space rocks making their closest approaches to Earth.',
-      link: '/asteroids',
-      soon: false,
-      icon: 'asteroid',
-    },
-  ];
+  protected readonly launchLoading = signal(true);
+  protected readonly nextLaunch = signal<Launch | null>(null);
+
+  protected readonly asteroidLoading = signal(true);
+  protected readonly asteroidStats = signal<AsteroidStats | null>(null);
+
+  protected readonly marsLoading = signal(true);
+  protected readonly latestMars = signal<MarsPhoto | null>(null);
 
   constructor() {
-    this.service
+    this.apod
       .getByDate(null)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (apod) => this.hero.set({ status: 'ready', apod }),
         error: () => this.hero.set({ status: 'error' }),
+      });
+
+    this.launches
+      .getUpcoming(1)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (list) => {
+          this.nextLaunch.set(list[0] ?? null);
+          this.launchLoading.set(false);
+        },
+        error: () => this.launchLoading.set(false),
+      });
+
+    const start = todayIso();
+    this.asteroids
+      .getFeed(start, shiftIso(start, 6))
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (rocks) => {
+          this.asteroidStats.set({
+            total: rocks.length,
+            hazardous: rocks.filter((r) => r.hazardous).length,
+          });
+          this.asteroidLoading.set(false);
+        },
+        error: () => this.asteroidLoading.set(false),
+      });
+
+    this.mars
+      .getPhotos(1)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (photos) => {
+          this.latestMars.set(photos[0] ?? null);
+          this.marsLoading.set(false);
+        },
+        error: () => this.marsLoading.set(false),
       });
   }
 

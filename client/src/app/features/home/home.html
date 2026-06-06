@@ -36,73 +36,54 @@
     }
   </section>
 
-  <section class="explore">
-    <h2 class="explore__heading">Explore</h2>
-    <div class="explore__grid">
-      @for (tile of tiles; track tile.title) {
-        @if (tile.link) {
-          <a class="tile" [routerLink]="tile.link">
-            <span class="tile__icon" aria-hidden="true">
-              <ng-container
-                [ngTemplateOutlet]="icon"
-                [ngTemplateOutletContext]="{ $implicit: tile.icon }"
-              />
-            </span>
-            <span class="tile__title">{{ tile.title }}</span>
-            <span class="tile__desc">{{ tile.description }}</span>
-          </a>
-        } @else {
-          <div class="tile tile--soon" aria-disabled="true">
-            <span class="tile__badge">Soon</span>
-            <span class="tile__icon" aria-hidden="true">
-              <ng-container
-                [ngTemplateOutlet]="icon"
-                [ngTemplateOutletContext]="{ $implicit: tile.icon }"
-              />
-            </span>
-            <span class="tile__title">{{ tile.title }}</span>
-            <span class="tile__desc">{{ tile.description }}</span>
-          </div>
-        }
+  <section class="dash-grid">
+    <a class="dash" routerLink="/launches">
+      <span class="dash__label">Next launch</span>
+      @if (launchLoading()) {
+        <app-skeleton width="80%" height="1.1rem" />
+        <app-skeleton width="50%" height="1.8rem" />
+      } @else if (nextLaunch(); as launch) {
+        <span class="dash__title">{{ launch.name }}</span>
+        <span class="dash__big"><app-countdown [target]="launch.net" /></span>
+        <span class="dash__meta">{{ launch.provider ?? 'Unknown provider' }}</span>
+      } @else {
+        <span class="dash__title">See upcoming launches →</span>
       }
-    </div>
+    </a>
+
+    <a class="dash" routerLink="/asteroids">
+      <span class="dash__label">Near-Earth asteroids · 7 days</span>
+      @if (asteroidLoading()) {
+        <app-skeleton width="40%" height="2.2rem" />
+        <app-skeleton width="65%" height="1rem" />
+      } @else if (asteroidStats(); as stats) {
+        <span class="dash__big">{{ stats.total }}</span>
+        <span class="dash__meta">
+          <span class="dash__haz">{{ stats.hazardous }}</span> potentially hazardous
+        </span>
+      } @else {
+        <span class="dash__title">See the asteroid feed →</span>
+      }
+    </a>
+
+    <a class="dash dash--mars" routerLink="/mars">
+      <span class="dash__label">Latest from Mars</span>
+      @if (marsLoading()) {
+        <app-skeleton height="7rem" radius="var(--radius-md)" />
+      } @else if (latestMars(); as photo) {
+        <span class="dash__thumb">
+          <img
+            appImgFade
+            [src]="photo.img_src"
+            [alt]="photo.camera"
+            loading="lazy"
+            decoding="async"
+          />
+        </span>
+        <span class="dash__meta">Sol {{ photo.sol }} · {{ photo.camera }}</span>
+      } @else {
+        <span class="dash__title">Browse Mars photos →</span>
+      }
+    </a>
   </section>
 </main>
-
-<ng-template #icon let-key>
-  @switch (key) {
-    @case ('apod') {
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-        <path d="M12 3l1.8 5 5 1.8-5 1.8L12 17l-1.8-5-5-1.8 5-1.8z" stroke-linejoin="round" />
-        <circle cx="18.5" cy="5.5" r="1" fill="currentColor" stroke="none" />
-      </svg>
-    }
-    @case ('launch') {
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-        <path
-          d="M12 3c2.6 2 3.8 5 3.8 8l-3.8 2.6L8.2 11C8.2 8 9.4 5 12 3z"
-          stroke-linejoin="round"
-        />
-        <path
-          d="M8.6 13l-2.1 3.6 3.5-1M15.4 13l2.1 3.6-3.5-1"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
-        <circle cx="12" cy="8.5" r="1.4" />
-      </svg>
-    }
-    @case ('mars') {
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-        <circle cx="12" cy="12" r="6.5" />
-        <ellipse cx="12" cy="12" rx="10.5" ry="3.4" transform="rotate(-22 12 12)" opacity="0.65" />
-      </svg>
-    }
-    @case ('asteroid') {
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-        <path d="M8 5.5l4-1.5 5 2.5 1.5 5-2 5.5-6 1-5-3.5-1-5.5z" stroke-linejoin="round" />
-        <circle cx="10.5" cy="11" r="1" fill="currentColor" stroke="none" />
-        <circle cx="14.5" cy="14" r="0.8" fill="currentColor" stroke="none" />
-      </svg>
-    }
-  }
-</ng-template>
