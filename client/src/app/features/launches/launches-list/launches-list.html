@@ -1,0 +1,90 @@
+<main class="launches">
+  <header class="launches__head">
+    <h1 class="launches__title">Rocket Launches</h1>
+    <div class="tabs" role="tablist">
+      <button
+        type="button"
+        class="tabs__btn"
+        [class.tabs__btn--active]="tab() === 'upcoming'"
+        (click)="setTab('upcoming')"
+      >
+        Upcoming
+      </button>
+      <button
+        type="button"
+        class="tabs__btn"
+        [class.tabs__btn--active]="tab() === 'previous'"
+        (click)="setTab('previous')"
+      >
+        Past
+      </button>
+    </div>
+  </header>
+
+  @if (state(); as s) {
+    @switch (s.status) {
+      @case ('loading') {
+        <div class="launches__grid" role="status" aria-label="Loading launches">
+          @for (slot of skeletonSlots; track slot) {
+            <div class="lcard lcard--skeleton">
+              <app-skeleton height="9rem" radius="var(--radius-md)" />
+              <app-skeleton width="50%" height="0.7rem" />
+              <app-skeleton width="90%" height="1rem" />
+            </div>
+          }
+        </div>
+      }
+      @case ('error') {
+        <div class="launches__state" role="alert">
+          <p>Couldn't load launches.</p>
+          <button type="button" class="launches__retry" (click)="retry()">Try again</button>
+        </div>
+      }
+      @case ('ready') {
+        @if (s.launches.length === 0) {
+          <div class="launches__state">
+            <p>No launches to show right now.</p>
+          </div>
+        } @else {
+          <div class="launches__grid">
+            @for (launch of s.launches; track launch.id) {
+              <a class="lcard" [routerLink]="['/launches', launch.id]">
+                <span class="lcard__thumb">
+                  @if (launch.image) {
+                    <img
+                      appImgFade
+                      [src]="launch.image"
+                      [alt]="launch.name"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  } @else {
+                    <span class="lcard__noimg" aria-hidden="true">🚀</span>
+                  }
+                  <span class="status status--{{ statusModifier(launch.status.abbrev) }}">
+                    {{ launch.status.name }}
+                  </span>
+                </span>
+
+                <span class="lcard__body">
+                  @if (tab() === 'upcoming') {
+                    <app-countdown [target]="launch.net" />
+                  } @else {
+                    <span class="lcard__date">{{ launch.net | date: 'mediumDate' }}</span>
+                  }
+                  <span class="lcard__name">{{ launch.name }}</span>
+                  <span class="lcard__meta">
+                    {{ launch.provider ?? 'Unknown provider' }}
+                    @if (launch.location) {
+                      · {{ launch.location }}
+                    }
+                  </span>
+                </span>
+              </a>
+            }
+          </div>
+        }
+      }
+    }
+  }
+</main>

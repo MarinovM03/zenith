@@ -24,6 +24,12 @@ export const routes: Routes = [
     loadComponent: () => import('./features/apod/apod-view/apod-view').then((m) => m.ApodView),
   },
   {
+    path: 'launches',
+    pathMatch: 'full',
+    loadComponent: () =>
+      import('./features/launches/launches-list/launches-list').then((m) => m.LaunchesList),
+  },
+  {
     path: 'login',
     canActivate: [guestGuard],
     loadComponent: () => import('./features/auth/login/login').then((m) => m.Login),
