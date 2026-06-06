@@ -10,8 +10,8 @@ export class MarsService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = environment.apiBaseUrl;
 
-  getPhotos(rover: string, date: string, page = 1): Observable<MarsPhoto[]> {
-    const params = new HttpParams().set('rover', rover).set('date', date).set('page', page);
+  getPhotos(page = 1): Observable<MarsPhoto[]> {
+    const params = new HttpParams().set('page', page);
     return this.http.get<MarsPhoto[]>(`${this.baseUrl}/mars/photos`, { params });
   }
 }

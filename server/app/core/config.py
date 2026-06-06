@@ -34,6 +34,7 @@ class Settings(BaseSettings):
 
     nasa_api_key: str = Field(default="DEMO_KEY")
     nasa_base_url: str = Field(default="https://api.nasa.gov")
+    mars_base_url: str = Field(default="https://mars.nasa.gov")
     launch_library_base_url: str = Field(default="https://ll.thespacedevs.com/2.2.0")
 
     @computed_field  # type: ignore[prop-decorator]

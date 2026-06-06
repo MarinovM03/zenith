@@ -5,15 +5,15 @@ import { MarsGallery } from './mars-gallery';
 import { MarsPhoto } from '../mars.model';
 import { MarsService } from '../mars.service';
 
-function photo(id: number): MarsPhoto {
+function photo(id: string): MarsPhoto {
   return {
     id,
-    sol: 1000,
-    earth_date: '2024-01-01',
-    camera: 'Navigation Camera',
-    camera_abbrev: 'NAVCAM',
-    img_src: 'https://mars.test/img.jpg',
-    rover: 'Curiosity',
+    sol: 1882,
+    earth_date: '2026-06-06',
+    camera: 'NAVCAM_LEFT',
+    img_src: 'https://mars.test/s.jpg',
+    full_src: 'https://mars.test/l.jpg',
+    rover: 'Perseverance',
   };
 }
 
@@ -31,8 +31,8 @@ async function settle(fixture: ReturnType<typeof TestBed.createComponent>) {
 }
 
 describe('MarsGallery', () => {
-  it('renders photos for the default rover and date', async () => {
-    configure({ getPhotos: () => of([photo(1), photo(2)]) });
+  it('renders the latest photos', async () => {
+    configure({ getPhotos: () => of([photo('a'), photo('b')]) });
     const fixture = TestBed.createComponent(MarsGallery);
     await settle(fixture);
 
@@ -44,7 +44,7 @@ describe('MarsGallery', () => {
     const fixture = TestBed.createComponent(MarsGallery);
     await settle(fixture);
 
-    expect(fixture.nativeElement.textContent).toContain('No photos for this date');
+    expect(fixture.nativeElement.textContent).toContain('No photos available');
   });
 
   it('shows an error state with retry when loading fails', async () => {

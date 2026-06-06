@@ -18,12 +18,17 @@ describe('MarsService', () => {
 
   afterEach(() => http.verify());
 
-  it('requests photos with rover, date and page params', () => {
-    service.getPhotos('curiosity', '2024-01-01', 2).subscribe();
+  it('requests photos with a page param', () => {
+    service.getPhotos(2).subscribe();
     const req = http.expectOne((r) => r.url.endsWith('/mars/photos'));
-    expect(req.request.params.get('rover')).toBe('curiosity');
-    expect(req.request.params.get('date')).toBe('2024-01-01');
     expect(req.request.params.get('page')).toBe('2');
+    req.flush([]);
+  });
+
+  it('defaults to page 1', () => {
+    service.getPhotos().subscribe();
+    const req = http.expectOne((r) => r.url.endsWith('/mars/photos'));
+    expect(req.request.params.get('page')).toBe('1');
     req.flush([]);
   });
 });

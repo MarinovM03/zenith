@@ -1,4 +1,3 @@
-from datetime import date
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
@@ -16,8 +15,7 @@ def get_mars_service() -> MarsPhotoService:
     return MarsPhotoService(
         http=get_shared_http_client(),
         cache=JsonCache(get_redis()),
-        api_key=settings.nasa_api_key,
-        base_url=settings.nasa_base_url,
+        base_url=settings.mars_base_url,
     )
 
 
@@ -29,8 +27,6 @@ router = APIRouter(prefix="/mars", tags=["mars"])
 @router.get("/photos", response_model=list[MarsPhoto])
 async def get_mars_photos(
     service: ServiceDep,
-    day: Annotated[date, Query(alias="date")],
-    rover: Annotated[str, Query()] = "curiosity",
-    page: Annotated[int, Query(ge=1, le=50)] = 1,
+    page: Annotated[int, Query(ge=1, le=100)] = 1,
 ) -> list[MarsPhoto]:
-    return await service.get_photos(rover, day, page)
+    return await service.get_photos(page)

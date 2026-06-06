@@ -4,10 +4,10 @@ from pydantic import BaseModel
 
 
 class MarsPhoto(BaseModel):
-    id: int
+    id: str
     sol: int
-    earth_date: date
+    earth_date: date | None = None
     camera: str
-    camera_abbrev: str
     img_src: str
+    full_src: str
     rover: str

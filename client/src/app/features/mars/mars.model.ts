@@ -1,12 +1,9 @@
 export interface MarsPhoto {
-  id: number;
+  id: string;
   sol: number;
-  earth_date: string;
+  earth_date: string | null;
   camera: string;
-  camera_abbrev: string;
   img_src: string;
+  full_src: string;
   rover: string;
 }
-
-export const MARS_ROVERS = ['curiosity', 'opportunity', 'spirit'] as const;
-export type MarsRover = (typeof MARS_ROVERS)[number];

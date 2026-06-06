@@ -1,28 +1,7 @@
 <main class="mars">
   <header class="mars__head">
-    <div>
-      <h1 class="mars__title">Mars Rover Photos</h1>
-      <p class="mars__sub">Raw images straight from the rovers on the Martian surface.</p>
-    </div>
-    <div class="mars__controls">
-      <label class="control">
-        <span class="control__label">Rover</span>
-        <select [value]="rover()" (change)="onRover($any($event.target).value)">
-          @for (r of rovers; track r) {
-            <option [value]="r">{{ r | titlecase }}</option>
-          }
-        </select>
-      </label>
-      <label class="control">
-        <span class="control__label">Earth date</span>
-        <input
-          type="date"
-          [value]="date()"
-          [max]="today"
-          (change)="onDate($any($event.target).value)"
-        />
-      </label>
-    </div>
+    <h1 class="mars__title">Mars Rover Photos</h1>
+    <p class="mars__sub">The latest raw images from NASA's Perseverance rover.</p>
   </header>
 
   @if (state(); as s) {
@@ -43,12 +22,12 @@
       @case ('ready') {
         @if (s.photos.length === 0) {
           <div class="mars__state">
-            <p>No photos for this date. Try another day or rover.</p>
+            <p>No photos available right now.</p>
           </div>
         } @else {
           <div class="mars__grid">
             @for (photo of s.photos; track photo.id) {
-              <a class="mphoto" [href]="photo.img_src" target="_blank" rel="noopener">
+              <a class="mphoto" [href]="photo.full_src" target="_blank" rel="noopener">
                 <span class="mphoto__img">
                   <img
                     appImgFade
@@ -59,7 +38,7 @@
                   />
                 </span>
                 <span class="mphoto__meta">
-                  <span class="mphoto__cam">{{ photo.camera_abbrev }}</span>
+                  <span class="mphoto__cam">{{ photo.camera }}</span>
                   <span class="mphoto__sol">Sol {{ photo.sol }}</span>
                 </span>
               </a>

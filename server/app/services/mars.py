@@ -1,5 +1,4 @@
 import logging
-from datetime import date
 from typing import Any
 
 import httpx
@@ -11,7 +10,12 @@ from app.services.upstream import NEGATIVE_SENTINEL, request_json
 
 logger = logging.getLogger(__name__)
 
-ROVERS = frozenset({"curiosity", "opportunity", "spirit"})
+# NASA's official raw-image feed. Perseverance (mars2020) is the active rover
+# with a maintained feed; the older mars-photos API was decommissioned.
+CATEGORY = "mars2020"
+ROVER = "Perseverance"
+PER_PAGE = 24
+
 CACHE_TTL_SECONDS = 24 * 60 * 60
 NEGATIVE_CACHE_TTL_SECONDS = 60
 
@@ -20,48 +24,37 @@ UPSTREAM_BACKOFF_SECONDS = 0.5
 UPSTREAM_TIMEOUT_SECONDS = 10.0
 
 
-def _https(url: str) -> str:
-    """Some rover image URLs are served over http; force https so they aren't
-    blocked as mixed content when the app is served over https."""
-    return "https://" + url[len("http://") :] if url.startswith("http://") else url
+def _pick(files: dict[str, Any], *keys: str) -> str:
+    for key in keys:
+        value = files.get(key)
+        if value:
+            return value
+    return ""
 
 
 def _normalise(raw: dict[str, Any]) -> dict[str, Any]:
+    files = raw.get("image_files") or {}
     camera = raw.get("camera") or {}
-    rover = raw.get("rover") or {}
+    utc = raw.get("date_taken_utc") or ""
     return {
-        "id": raw["id"],
-        "sol": raw["sol"],
-        "earth_date": raw["earth_date"],
-        "camera": camera.get("full_name") or camera.get("name") or "Camera",
-        "camera_abbrev": camera.get("name") or "CAM",
-        "img_src": _https(raw["img_src"]),
-        "rover": rover.get("name") or "Unknown",
+        "id": raw.get("imageid") or "",
+        "sol": raw.get("sol") or 0,
+        "earth_date": utc[:10] or None,
+        "camera": camera.get("instrument") or "Camera",
+        "img_src": _pick(files, "small", "medium", "large", "full_res"),
+        "full_src": _pick(files, "large", "full_res", "medium", "small"),
+        "rover": ROVER,
     }
 
 
 class MarsPhotoService:
-    def __init__(
-        self,
-        http: httpx.AsyncClient,
-        cache: JsonCache,
-        api_key: str,
-        base_url: str,
-    ) -> None:
+    def __init__(self, http: httpx.AsyncClient, cache: JsonCache, base_url: str) -> None:
         self._http = http
         self._cache = cache
-        self._api_key = api_key
         self._base_url = base_url.rstrip("/")
 
-    async def get_photos(self, rover: str, day: date, page: int) -> list[MarsPhoto]:
-        rover = rover.lower()
-        if rover not in ROVERS:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"unknown rover; choose one of {sorted(ROVERS)}",
-            )
-
-        cache_key = f"mars:{rover}:{day.isoformat()}:{page}"
+    async def get_photos(self, page: int) -> list[MarsPhoto]:
+        cache_key = f"mars:{CATEGORY}:{page}"
         cached = await self._cache.get(cache_key)
         if cached == NEGATIVE_SENTINEL:
             raise self._unavailable()
@@ -69,24 +62,28 @@ class MarsPhotoService:
             return [MarsPhoto.model_validate(item) for item in cached]
 
         try:
-            raw = await self._request(rover, day, page)
+            raw = await self._request(page)
         except httpx.HTTPError as exc:
             await self._cache.set(cache_key, NEGATIVE_SENTINEL, NEGATIVE_CACHE_TTL_SECONDS)
-            logger.warning("Mars photos fetch failed for %s %s: %s", rover, day, exc)
+            logger.warning("Mars photos fetch failed (page %s): %s", page, exc)
             raise self._unavailable() from exc
 
-        payload = [_normalise(item) for item in raw.get("photos", [])]
+        images = raw.get("images") or []
+        payload = [item for item in (_normalise(i) for i in images) if item["img_src"]]
         await self._cache.set(cache_key, payload, CACHE_TTL_SECONDS)
         return [MarsPhoto.model_validate(item) for item in payload]
 
-    async def _request(self, rover: str, day: date, page: int) -> Any:
+    async def _request(self, page: int) -> Any:
         return await request_json(
             self._http,
-            f"{self._base_url}/mars-photos/api/v1/rovers/{rover}/photos",
+            f"{self._base_url}/rss/api/",
             params={
-                "earth_date": day.isoformat(),
-                "page": page,
-                "api_key": self._api_key,
+                "feed": "raw_images",
+                "category": CATEGORY,
+                "feedtype": "json",
+                "num": PER_PAGE,
+                "page": page - 1,
+                "order": "sol desc",
             },
             retries=UPSTREAM_RETRIES,
             backoff_seconds=UPSTREAM_BACKOFF_SECONDS,
