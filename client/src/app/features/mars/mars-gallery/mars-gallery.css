@@ -1,0 +1,167 @@
+.mars {
+  display: block;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-4) var(--space-10);
+}
+
+.mars__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.mars__title {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+
+.mars__sub {
+  margin: var(--space-1) 0 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.mars__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.control {
+  display: inline-flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.control select,
+.control input[type='date'] {
+  background-color: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.9rem;
+  color-scheme: dark;
+}
+
+.control select:focus-visible,
+.control input[type='date']:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.mars__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--space-4);
+}
+
+.mphoto {
+  position: relative;
+  display: block;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background-color: #000;
+  box-shadow: var(--shadow-card);
+  text-decoration: none;
+  color: var(--color-text);
+  aspect-ratio: 1 / 1;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.mphoto:hover {
+  transform: translateY(-3px);
+  border-color: rgba(182, 242, 58, 0.25);
+  box-shadow: var(--shadow-pop), var(--shadow-glow);
+}
+
+.mphoto__img,
+.mphoto__img img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mphoto__meta {
+  position: absolute;
+  inset: auto 0 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--color-text);
+  background: linear-gradient(180deg, rgba(2, 3, 10, 0), rgba(2, 3, 10, 0.85));
+}
+
+.mphoto__cam {
+  color: var(--color-accent);
+}
+
+.mphoto__sol {
+  color: var(--color-text-muted);
+}
+
+.mars__state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  min-height: 30vh;
+  color: var(--color-text-muted);
+}
+
+.mars__more {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-8);
+}
+
+.mars__load,
+.mars__retry {
+  background: transparent;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 600;
+  padding: var(--space-3) var(--space-6);
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    color 0.18s ease;
+}
+
+.mars__load:hover:not(:disabled),
+.mars__retry:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.mars__load:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mphoto {
+    transition: none;
+  }
+}

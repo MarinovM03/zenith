@@ -35,6 +35,12 @@ export const routes: Routes = [
       import('./features/launches/launch-detail/launch-detail').then((m) => m.LaunchDetail),
   },
   {
+    path: 'mars',
+    pathMatch: 'full',
+    loadComponent: () =>
+      import('./features/mars/mars-gallery/mars-gallery').then((m) => m.MarsGallery),
+  },
+  {
     path: 'login',
     canActivate: [guestGuard],
     loadComponent: () => import('./features/auth/login/login').then((m) => m.Login),
