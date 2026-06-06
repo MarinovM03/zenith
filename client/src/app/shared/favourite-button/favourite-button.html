@@ -1,0 +1,12 @@
+@if (signedIn()) {
+  <button
+    type="button"
+    class="favbtn"
+    [class.favbtn--on]="isFavourite()"
+    [attr.aria-pressed]="isFavourite()"
+    (click)="toggle()"
+  >
+    <span class="favbtn__star" aria-hidden="true">{{ isFavourite() ? '★' : '☆' }}</span>
+    <span class="favbtn__label">{{ isFavourite() ? 'Saved' : 'Save' }}</span>
+  </button>
+}
