@@ -17,3 +17,13 @@ export interface Launch {
   image: string | null;
   webcast_url: string | null;
 }
+
+export type LaunchStatusTone = 'go' | 'fail' | 'hold' | 'neutral';
+
+export function launchStatusTone(abbrev: string): LaunchStatusTone {
+  const key = abbrev.toLowerCase();
+  if (key === 'go' || key === 'success') return 'go';
+  if (key === 'failure' || key === 'partial failure') return 'fail';
+  if (key === 'hold' || key === 'tbd' || key === 'tbc') return 'hold';
+  return 'neutral';
+}

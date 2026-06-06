@@ -6,7 +6,7 @@ import { RouterLink } from '@angular/router';
 import { ImgFade } from '../../../shared/img-fade/img-fade';
 import { Skeleton } from '../../../shared/skeleton/skeleton';
 import { Countdown } from '../countdown/countdown';
-import { Launch } from '../launch.model';
+import { Launch, launchStatusTone } from '../launch.model';
 import { LaunchService } from '../launch.service';
 
 type Tab = 'upcoming' | 'previous';
@@ -46,13 +46,7 @@ export class LaunchesList {
     this.load(this.tab());
   }
 
-  protected statusModifier(abbrev: string): string {
-    const key = abbrev.toLowerCase();
-    if (['go', 'success'].includes(key)) return 'go';
-    if (['failure', 'partial failure'].includes(key)) return 'fail';
-    if (['hold', 'tbd', 'tbc'].includes(key)) return 'hold';
-    return 'neutral';
-  }
+  protected readonly statusModifier = launchStatusTone;
 
   private load(tab: Tab): void {
     this.state.set({ status: 'loading' });
