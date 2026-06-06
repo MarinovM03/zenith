@@ -1,0 +1,85 @@
+<main class="mars">
+  <header class="mars__head">
+    <div>
+      <h1 class="mars__title">Mars Rover Photos</h1>
+      <p class="mars__sub">Raw images straight from the rovers on the Martian surface.</p>
+    </div>
+    <div class="mars__controls">
+      <label class="control">
+        <span class="control__label">Rover</span>
+        <select [value]="rover()" (change)="onRover($any($event.target).value)">
+          @for (r of rovers; track r) {
+            <option [value]="r">{{ r | titlecase }}</option>
+          }
+        </select>
+      </label>
+      <label class="control">
+        <span class="control__label">Earth date</span>
+        <input
+          type="date"
+          [value]="date()"
+          [max]="today"
+          (change)="onDate($any($event.target).value)"
+        />
+      </label>
+    </div>
+  </header>
+
+  @if (state(); as s) {
+    @switch (s.status) {
+      @case ('loading') {
+        <div class="mars__grid" role="status" aria-label="Loading photos">
+          @for (slot of skeletonSlots; track slot) {
+            <app-skeleton height="11rem" radius="var(--radius-lg)" />
+          }
+        </div>
+      }
+      @case ('error') {
+        <div class="mars__state" role="alert">
+          <p>Couldn't load Mars photos.</p>
+          <button type="button" class="mars__retry" (click)="retry()">Try again</button>
+        </div>
+      }
+      @case ('ready') {
+        @if (s.photos.length === 0) {
+          <div class="mars__state">
+            <p>No photos for this date. Try another day or rover.</p>
+          </div>
+        } @else {
+          <div class="mars__grid">
+            @for (photo of s.photos; track photo.id) {
+              <a class="mphoto" [href]="photo.img_src" target="_blank" rel="noopener">
+                <span class="mphoto__img">
+                  <img
+                    appImgFade
+                    [src]="photo.img_src"
+                    [alt]="photo.camera"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </span>
+                <span class="mphoto__meta">
+                  <span class="mphoto__cam">{{ photo.camera_abbrev }}</span>
+                  <span class="mphoto__sol">Sol {{ photo.sol }}</span>
+                </span>
+              </a>
+            }
+          </div>
+
+          @if (!noMore()) {
+            <div class="mars__more">
+              <button
+                type="button"
+                class="mars__load"
+                (click)="loadMore()"
+                [disabled]="loadingMore()"
+              >
+                {{ loadingMore() ? 'Loading…' : 'Load more' }}
+              </button>
+            </div>
+          }
+        }
+      }
+    }
+  }
+</main>

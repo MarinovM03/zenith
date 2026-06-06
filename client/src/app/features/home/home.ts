@@ -51,8 +51,8 @@ export class Home {
     {
       title: 'Mars Rover',
       description: 'Photographs from the rovers exploring the surface of Mars.',
-      link: null,
-      soon: true,
+      link: '/mars',
+      soon: false,
       icon: 'mars',
     },
     {
