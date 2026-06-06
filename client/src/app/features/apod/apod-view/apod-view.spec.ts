@@ -1,3 +1,5 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
@@ -29,7 +31,12 @@ const VIDEO_APOD: Apod = {
 function configure(serviceMock: Partial<ApodService>) {
   TestBed.configureTestingModule({
     imports: [ApodView],
-    providers: [provideRouter([]), { provide: ApodService, useValue: serviceMock }],
+    providers: [
+      provideRouter([]),
+      provideHttpClient(),
+      provideHttpClientTesting(),
+      { provide: ApodService, useValue: serviceMock },
+    ],
   });
 }
 

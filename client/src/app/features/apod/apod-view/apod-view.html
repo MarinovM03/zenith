@@ -82,6 +82,11 @@
               />
             </label>
             <div class="apod__actions">
+              <app-favourite-button
+                kind="apod"
+                [refId]="s.apod.date"
+                [payload]="{ title: s.apod.title, url: s.apod.url }"
+              />
               <a class="apod__archive-link" routerLink="/apod/archive">Browse archive</a>
               @if (s.apod.hdurl) {
                 <a class="apod__hd-link" [href]="s.apod.hdurl" target="_blank" rel="noopener">

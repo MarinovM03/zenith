@@ -11,6 +11,7 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 
+import { FavouriteButton } from '../../../shared/favourite-button/favourite-button';
 import { ImgFade } from '../../../shared/img-fade/img-fade';
 import { Skeleton } from '../../../shared/skeleton/skeleton';
 import { Countdown } from '../countdown/countdown';
@@ -23,7 +24,7 @@ type LoadState = { status: 'loading' } | { status: 'ready'; launch: Launch } | {
   selector: 'app-launch-detail',
   templateUrl: './launch-detail.html',
   styleUrl: './launch-detail.css',
-  imports: [RouterLink, DatePipe, Countdown, Skeleton, ImgFade],
+  imports: [RouterLink, DatePipe, Countdown, Skeleton, ImgFade, FavouriteButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LaunchDetail {

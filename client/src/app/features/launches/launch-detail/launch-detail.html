@@ -77,6 +77,11 @@
 
           <div class="detail__actions">
             <a class="detail__back" routerLink="/launches">← All launches</a>
+            <app-favourite-button
+              kind="launch"
+              [refId]="s.launch.id"
+              [payload]="{ name: s.launch.name, image: s.launch.image }"
+            />
             @if (s.launch.webcast_url) {
               <a
                 class="detail__webcast"
