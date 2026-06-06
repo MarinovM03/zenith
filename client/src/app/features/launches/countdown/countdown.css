@@ -1,0 +1,19 @@
+.countdown {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4ch;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+.countdown__prefix {
+  font-size: 0.85em;
+  opacity: 0.7;
+}
+
+.countdown--launched {
+  color: var(--color-text-muted);
+  font-weight: 600;
+}

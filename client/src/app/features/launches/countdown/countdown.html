@@ -1,0 +1,8 @@
+@if (launched()) {
+  <span class="countdown countdown--launched">Liftoff</span>
+} @else {
+  <span class="countdown">
+    <span class="countdown__prefix">T-</span>
+    <span class="countdown__time">{{ label() }}</span>
+  </span>
+}
