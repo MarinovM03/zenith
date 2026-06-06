@@ -1,4 +1,3 @@
-import asyncio
 import logging
 from typing import Any
 
@@ -7,6 +6,7 @@ from fastapi import HTTPException, status
 
 from app.schemas.launch import Launch
 from app.services.cache import JsonCache
+from app.services.upstream import NEGATIVE_SENTINEL, request_json
 
 logger = logging.getLogger(__name__)
 
@@ -14,7 +14,6 @@ UPCOMING_TTL_SECONDS = 10 * 60
 PREVIOUS_TTL_SECONDS = 24 * 60 * 60
 DETAIL_TTL_SECONDS = 24 * 60 * 60
 NEGATIVE_CACHE_TTL_SECONDS = 60
-NEGATIVE_SENTINEL = {"__missing__": True}
 
 UPSTREAM_RETRIES = 2
 UPSTREAM_BACKOFF_SECONDS = 0.5
@@ -85,7 +84,7 @@ class LaunchService:
             return Launch.model_validate(cached)
 
         try:
-            raw = await self._request_json(f"/launch/{launch_id}/", params=None)
+            raw = await self._request(f"/launch/{launch_id}/", params=None)
         except httpx.HTTPError as exc:
             if isinstance(exc, httpx.HTTPStatusError) and exc.response.status_code == 404:
                 raise HTTPException(
@@ -107,7 +106,7 @@ class LaunchService:
             return [Launch.model_validate(item) for item in cached]
 
         try:
-            raw = await self._request_json(path, params={"limit": limit, "mode": "normal"})
+            raw = await self._request(path, params={"limit": limit, "mode": "normal"})
         except httpx.HTTPError as exc:
             await self._cache.set(cache_key, NEGATIVE_SENTINEL, NEGATIVE_CACHE_TTL_SECONDS)
             logger.warning("Launch Library fetch failed for %s: %s", path, exc)
@@ -117,28 +116,15 @@ class LaunchService:
         await self._cache.set(cache_key, payload, ttl)
         return [Launch.model_validate(item) for item in payload]
 
-    async def _request_json(self, path: str, params: dict[str, Any] | None) -> Any:
-        """GET an upstream path, retrying transient failures (timeouts, 5xx).
-        Client errors such as 404 are raised immediately."""
-        url = f"{self._base_url}{path}"
-        last_exc: httpx.HTTPError | None = None
-        for attempt in range(UPSTREAM_RETRIES + 1):
-            try:
-                response = await self._http.get(
-                    url, params=params, timeout=UPSTREAM_TIMEOUT_SECONDS
-                )
-                response.raise_for_status()
-                return response.json()
-            except httpx.HTTPStatusError as exc:
-                if exc.response.status_code < 500:
-                    raise
-                last_exc = exc
-            except httpx.HTTPError as exc:
-                last_exc = exc
-            if attempt < UPSTREAM_RETRIES:
-                await asyncio.sleep(UPSTREAM_BACKOFF_SECONDS * (attempt + 1))
-        assert last_exc is not None
-        raise last_exc
+    async def _request(self, path: str, params: dict[str, Any] | None) -> Any:
+        return await request_json(
+            self._http,
+            f"{self._base_url}{path}",
+            params=params,
+            retries=UPSTREAM_RETRIES,
+            backoff_seconds=UPSTREAM_BACKOFF_SECONDS,
+            timeout_seconds=UPSTREAM_TIMEOUT_SECONDS,
+        )
 
     @staticmethod
     def _unavailable() -> HTTPException:

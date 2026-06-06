@@ -44,8 +44,8 @@ export class Home {
     {
       title: 'Rocket Launches',
       description: 'Upcoming and past launches across every provider, with live countdowns.',
-      link: null,
-      soon: true,
+      link: '/launches',
+      soon: false,
       icon: 'launch',
     },
     {

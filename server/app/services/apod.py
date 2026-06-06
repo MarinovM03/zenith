@@ -1,4 +1,3 @@
-import asyncio
 import logging
 from datetime import UTC, date, datetime, timedelta
 from typing import Any
@@ -8,6 +7,7 @@ from fastapi import HTTPException, status
 
 from app.schemas.apod import Apod
 from app.services.cache import JsonCache
+from app.services.upstream import NEGATIVE_SENTINEL, request_json
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +15,6 @@ APOD_EPOCH = date(1995, 6, 16)
 CACHE_TTL_SECONDS = 24 * 60 * 60
 NEGATIVE_CACHE_TTL_SECONDS = 20
 MAX_RANGE_DAYS = 30
-NEGATIVE_SENTINEL = {"__missing__": True}
 
 UPSTREAM_RETRIES = 2
 UPSTREAM_BACKOFF_SECONDS = 0.5
@@ -154,31 +153,8 @@ class NasaApodService:
 
         return [Apod.model_validate(results[d]) for d in days if d in results]
 
-    async def _request_json(self, params: dict[str, Any]) -> Any:
-        """GET the APOD endpoint, retrying transient failures (timeouts, 5xx).
-        Client errors such as 404 are raised immediately — retrying won't help."""
-        url = f"{self._base_url}/planetary/apod"
-        last_exc: httpx.HTTPError | None = None
-        for attempt in range(UPSTREAM_RETRIES + 1):
-            try:
-                response = await self._http.get(
-                    url, params=params, timeout=UPSTREAM_TIMEOUT_SECONDS
-                )
-                response.raise_for_status()
-                return response.json()
-            except httpx.HTTPStatusError as exc:
-                if exc.response.status_code < 500:
-                    raise
-                last_exc = exc
-            except httpx.HTTPError as exc:
-                last_exc = exc
-            if attempt < UPSTREAM_RETRIES:
-                await asyncio.sleep(UPSTREAM_BACKOFF_SECONDS * (attempt + 1))
-        assert last_exc is not None
-        raise last_exc
-
     async def _fetch_single(self, day: date) -> dict[str, Any]:
-        return await self._request_json(
+        return await self._request(
             {
                 "api_key": self._api_key,
                 "date": day.isoformat(),
@@ -187,11 +163,21 @@ class NasaApodService:
         )
 
     async def _fetch_range(self, start: date, end: date) -> list[dict[str, Any]]:
-        return await self._request_json(
+        return await self._request(
             {
                 "api_key": self._api_key,
                 "start_date": start.isoformat(),
                 "end_date": end.isoformat(),
                 "thumbs": "true",
             }
+        )
+
+    async def _request(self, params: dict[str, Any]) -> Any:
+        return await request_json(
+            self._http,
+            f"{self._base_url}/planetary/apod",
+            params=params,
+            retries=UPSTREAM_RETRIES,
+            backoff_seconds=UPSTREAM_BACKOFF_SECONDS,
+            timeout_seconds=UPSTREAM_TIMEOUT_SECONDS,
         )
