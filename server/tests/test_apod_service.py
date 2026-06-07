@@ -111,6 +111,23 @@ async def test_get_caches_negative_on_upstream_error(cache: JsonCache) -> None:
 
 
 @pytest.mark.asyncio
+async def test_get_timeout_does_not_cache_negative(cache: JsonCache) -> None:
+    target = date(2026, 5, 1)
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        raise httpx.ReadTimeout("slow", request=request)
+
+    async with _client(handler) as http:
+        service = _service(http, cache)
+        with pytest.raises(HTTPException) as exc_info:
+            await service.get(target)
+
+    assert exc_info.value.status_code == 502
+    # A timeout is transient slowness, not a missing date — leave the cache clear.
+    assert await cache.get(_cache_key(target)) is None
+
+
+@pytest.mark.asyncio
 async def test_get_retries_transient_failure_then_succeeds(cache: JsonCache) -> None:
     target = date(2026, 5, 1)
     calls = 0
@@ -132,7 +149,7 @@ async def test_get_retries_transient_failure_then_succeeds(cache: JsonCache) -> 
 
 
 @pytest.mark.asyncio
-async def test_get_does_not_retry_or_poison_on_404(cache: JsonCache) -> None:
+async def test_get_retries_404_then_maps_to_not_found(cache: JsonCache) -> None:
     target = date(2026, 5, 1)
     calls = 0
 
@@ -147,8 +164,25 @@ async def test_get_does_not_retry_or_poison_on_404(cache: JsonCache) -> None:
             await service.get(target)
 
     assert exc_info.value.status_code == 404
-    assert calls == 1
+    assert calls == 3
     assert await cache.get(_cache_key(target)) is None
+
+
+@pytest.mark.asyncio
+async def test_latest_falls_back_to_previous_day(cache: JsonCache) -> None:
+    today = _today_utc()
+    yesterday = today - timedelta(days=1)
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        requested = request.url.params.get("date")
+        if requested == yesterday.isoformat():
+            return httpx.Response(200, json=_sample(yesterday))
+        return httpx.Response(404)
+
+    async with _client(handler) as http:
+        result = await _service(http, cache).get(None)
+
+    assert result.date == yesterday
 
 
 @pytest.mark.asyncio

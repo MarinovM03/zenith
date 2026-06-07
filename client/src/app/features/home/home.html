@@ -67,11 +67,8 @@
     </a>
 
     <a class="dash dash--mars" routerLink="/mars">
-      <span class="dash__label">Latest from Mars</span>
-      @if (marsLoading()) {
-        <app-skeleton height="7rem" radius="var(--radius-md)" />
-      } @else if (latestMars(); as photo) {
-        <span class="dash__thumb">
+      @if (!marsLoading() && latestMars(); as photo) {
+        <span class="dash__bg">
           <img
             appImgFade
             [src]="photo.img_src"
@@ -80,7 +77,14 @@
             decoding="async"
           />
         </span>
-        <span class="dash__meta">Sol {{ photo.sol }} · {{ photo.camera }}</span>
+        <span class="dash__bg-scrim"></span>
+      }
+      <span class="dash__label">Latest from Mars</span>
+      @if (marsLoading()) {
+        <app-skeleton width="50%" height="1.6rem" />
+      } @else if (latestMars(); as photo) {
+        <span class="dash__title">Sol {{ photo.sol }}</span>
+        <span class="dash__meta">{{ photo.camera }}</span>
       } @else {
         <span class="dash__title">Browse Mars photos →</span>
       }

@@ -47,13 +47,16 @@
 
           @if (!noMore()) {
             <div class="mars__more">
+              @if (loadMoreError()) {
+                <p class="mars__more-error">Couldn't load more photos.</p>
+              }
               <button
                 type="button"
                 class="mars__load"
                 (click)="loadMore()"
                 [disabled]="loadingMore()"
               >
-                {{ loadingMore() ? 'Loading…' : 'Load more' }}
+                {{ loadingMore() ? 'Loading…' : loadMoreError() ? 'Retry' : 'Load more' }}
               </button>
             </div>
           }

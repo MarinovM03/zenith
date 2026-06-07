@@ -19,9 +19,13 @@ PER_PAGE = 24
 CACHE_TTL_SECONDS = 24 * 60 * 60
 NEGATIVE_CACHE_TTL_SECONDS = 60
 
-UPSTREAM_RETRIES = 2
+# A cold deep page takes ~15-20s from mars.nasa.gov's origin before its CDN
+# caches it, so a tight timeout never lets pages past the first one land in our
+# cache. Wait long enough to fetch them once; retrying slowness adds little, so
+# keep retries low (one extra attempt often catches the now-warmed page).
+UPSTREAM_RETRIES = 1
 UPSTREAM_BACKOFF_SECONDS = 0.5
-UPSTREAM_TIMEOUT_SECONDS = 10.0
+UPSTREAM_TIMEOUT_SECONDS = 25.0
 
 
 def _pick(files: dict[str, Any], *keys: str) -> str:
@@ -63,6 +67,11 @@ class MarsPhotoService:
 
         try:
             raw = await self._request(page)
+        except httpx.TimeoutException as exc:
+            # A timeout means "slow", not "gone": don't poison the cache, so a
+            # user's retry reaches the upstream again (often now warm).
+            logger.warning("Mars photos timed out (page %s): %s", page, exc)
+            raise self._unavailable() from exc
         except httpx.HTTPError as exc:
             await self._cache.set(cache_key, NEGATIVE_SENTINEL, NEGATIVE_CACHE_TTL_SECONDS)
             logger.warning("Mars photos fetch failed (page %s): %s", page, exc)

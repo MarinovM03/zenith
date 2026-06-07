@@ -15,10 +15,13 @@ APOD_EPOCH = date(1995, 6, 16)
 CACHE_TTL_SECONDS = 24 * 60 * 60
 NEGATIVE_CACHE_TTL_SECONDS = 20
 MAX_RANGE_DAYS = 30
+LATEST_FALLBACK_DAYS = 3
 
 UPSTREAM_RETRIES = 2
 UPSTREAM_BACKOFF_SECONDS = 0.5
-UPSTREAM_TIMEOUT_SECONDS = 10.0
+# api.nasa.gov answers in under a second when healthy but occasionally stalls;
+# give it room beyond the old 10s without inviting a very long hang.
+UPSTREAM_TIMEOUT_SECONDS = 15.0
 
 
 def _today_utc() -> date:
@@ -71,9 +74,27 @@ class NasaApodService:
         self._base_url = base_url.rstrip("/")
 
     async def get(self, day: date | None = None) -> Apod:
-        target = day or _today_utc()
-        _validate_date(target)
+        if day is not None:
+            _validate_date(day)
+            return await self._get_one(day)
 
+        # No date given: serve the most recent available picture. "Today" may
+        # not be posted yet, so fall back through the previous few days.
+        target = _today_utc()
+        earliest = target - timedelta(days=LATEST_FALLBACK_DAYS)
+        while target >= earliest:
+            try:
+                return await self._get_one(target)
+            except HTTPException as exc:
+                if exc.status_code != status.HTTP_404_NOT_FOUND:
+                    raise
+                target -= timedelta(days=1)
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="upstream APOD unavailable",
+        )
+
+    async def _get_one(self, target: date) -> Apod:
         cached = await self._cache.get(_cache_key(target))
         if cached == NEGATIVE_SENTINEL:
             raise HTTPException(
@@ -91,7 +112,12 @@ class NasaApodService:
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail="no APOD for this date",
                 ) from exc
-            await self._cache.set(_cache_key(target), NEGATIVE_SENTINEL, NEGATIVE_CACHE_TTL_SECONDS)
+            if not isinstance(exc, httpx.TimeoutException):
+                # A timeout is transient slowness, not a missing/broken date, so
+                # skip the negative cache and let a retry reach the upstream.
+                await self._cache.set(
+                    _cache_key(target), NEGATIVE_SENTINEL, NEGATIVE_CACHE_TTL_SECONDS
+                )
             logger.warning("NASA APOD fetch failed for %s: %s", target, exc)
             raise HTTPException(
                 status_code=status.HTTP_502_BAD_GATEWAY,
@@ -133,10 +159,11 @@ class NasaApodService:
             try:
                 raw_list = await self._fetch_range(fetch_start, fetch_end)
             except httpx.HTTPError as exc:
-                for day in missing:
-                    await self._cache.set(
-                        _cache_key(day), NEGATIVE_SENTINEL, NEGATIVE_CACHE_TTL_SECONDS
-                    )
+                if not isinstance(exc, httpx.TimeoutException):
+                    for day in missing:
+                        await self._cache.set(
+                            _cache_key(day), NEGATIVE_SENTINEL, NEGATIVE_CACHE_TTL_SECONDS
+                        )
                 logger.warning(
                     "NASA APOD range fetch failed for %s..%s: %s", fetch_start, fetch_end, exc
                 )
@@ -159,7 +186,8 @@ class NasaApodService:
                 "api_key": self._api_key,
                 "date": day.isoformat(),
                 "thumbs": "true",
-            }
+            },
+            retry_on_404=True,
         )
 
     async def _fetch_range(self, start: date, end: date) -> list[dict[str, Any]]:
@@ -172,7 +200,7 @@ class NasaApodService:
             }
         )
 
-    async def _request(self, params: dict[str, Any]) -> Any:
+    async def _request(self, params: dict[str, Any], *, retry_on_404: bool = False) -> Any:
         return await request_json(
             self._http,
             f"{self._base_url}/planetary/apod",
@@ -180,4 +208,5 @@ class NasaApodService:
             retries=UPSTREAM_RETRIES,
             backoff_seconds=UPSTREAM_BACKOFF_SECONDS,
             timeout_seconds=UPSTREAM_TIMEOUT_SECONDS,
+            retry_on_404=retry_on_404,
         )

@@ -97,3 +97,17 @@ async def test_caches_negative_on_error(cache: JsonCache) -> None:
             await _service(http, cache).get_photos(1)
     assert exc_info.value.status_code == 502
     assert await cache.get("mars:mars2020:1") == NEGATIVE_SENTINEL
+
+
+@pytest.mark.asyncio
+async def test_timeout_does_not_cache_negative(cache: JsonCache) -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        raise httpx.ReadTimeout("slow", request=request)
+
+    async with _client(handler) as http:
+        with pytest.raises(HTTPException) as exc_info:
+            await _service(http, cache).get_photos(1)
+
+    assert exc_info.value.status_code == 502
+    # A timeout must not poison the cache, or the user's retry would fail fast.
+    assert await cache.get("mars:mars2020:1") is None

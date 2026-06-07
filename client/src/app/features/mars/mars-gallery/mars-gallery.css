@@ -93,8 +93,16 @@
 
 .mars__more {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
   margin-top: var(--space-8);
+}
+
+.mars__more-error {
+  margin: 0;
+  color: var(--color-danger);
+  font-size: 0.85rem;
 }
 
 .mars__load,

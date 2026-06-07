@@ -24,6 +24,7 @@ export class MarsGallery {
 
   protected readonly state = signal<LoadState>({ status: 'loading' });
   protected readonly loadingMore = signal(false);
+  protected readonly loadMoreError = signal(false);
   protected readonly noMore = signal(false);
   protected readonly skeletonSlots = Array.from({ length: 12 }, (_, i) => i);
 
@@ -43,23 +44,29 @@ export class MarsGallery {
       return;
     }
     this.loadingMore.set(true);
-    this.page += 1;
+    this.loadMoreError.set(false);
+    const nextPage = this.page + 1;
     this.service
-      .getPhotos(this.page)
+      .getPhotos(nextPage)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (more) => {
+          this.page = nextPage;
           this.state.set({ status: 'ready', photos: [...current.photos, ...more] });
           this.noMore.set(more.length === 0);
           this.loadingMore.set(false);
         },
-        error: () => this.loadingMore.set(false),
+        error: () => {
+          this.loadingMore.set(false);
+          this.loadMoreError.set(true);
+        },
       });
   }
 
   private reload(): void {
     this.page = 1;
     this.noMore.set(false);
+    this.loadMoreError.set(false);
     this.state.set({ status: 'loading' });
     this.service
       .getPhotos(1)
