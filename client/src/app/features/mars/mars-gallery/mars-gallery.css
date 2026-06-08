@@ -46,7 +46,7 @@
 
 .mphoto:hover {
   transform: translateY(-3px);
-  border-color: rgba(168, 85, 247, 0.25);
+  border-color: rgba(166, 76, 232, 0.25);
   box-shadow: var(--shadow-pop), var(--shadow-glow);
 }
 

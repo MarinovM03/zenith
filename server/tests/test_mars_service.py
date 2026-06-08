@@ -109,5 +109,4 @@ async def test_timeout_does_not_cache_negative(cache: JsonCache) -> None:
             await _service(http, cache).get_photos(1)
 
     assert exc_info.value.status_code == 502
-    # A timeout must not poison the cache, or the user's retry would fail fast.
     assert await cache.get("mars:mars2020:1") is None

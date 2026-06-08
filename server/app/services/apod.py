@@ -19,8 +19,6 @@ LATEST_FALLBACK_DAYS = 3
 
 UPSTREAM_RETRIES = 2
 UPSTREAM_BACKOFF_SECONDS = 0.5
-# api.nasa.gov answers in under a second when healthy but occasionally stalls;
-# give it room beyond the old 10s without inviting a very long hang.
 UPSTREAM_TIMEOUT_SECONDS = 15.0
 
 
@@ -78,8 +76,6 @@ class NasaApodService:
             _validate_date(day)
             return await self._get_one(day)
 
-        # No date given: serve the most recent available picture. "Today" may
-        # not be posted yet, so fall back through the previous few days.
         target = _today_utc()
         earliest = target - timedelta(days=LATEST_FALLBACK_DAYS)
         while target >= earliest:
@@ -113,8 +109,6 @@ class NasaApodService:
                     detail="no APOD for this date",
                 ) from exc
             if not isinstance(exc, httpx.TimeoutException):
-                # A timeout is transient slowness, not a missing/broken date, so
-                # skip the negative cache and let a retry reach the upstream.
                 await self._cache.set(
                     _cache_key(target), NEGATIVE_SENTINEL, NEGATIVE_CACHE_TTL_SECONDS
                 )

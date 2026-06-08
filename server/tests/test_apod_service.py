@@ -123,7 +123,6 @@ async def test_get_timeout_does_not_cache_negative(cache: JsonCache) -> None:
             await service.get(target)
 
     assert exc_info.value.status_code == 502
-    # A timeout is transient slowness, not a missing date — leave the cache clear.
     assert await cache.get(_cache_key(target)) is None
 
 
