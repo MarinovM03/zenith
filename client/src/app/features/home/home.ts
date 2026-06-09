@@ -1,3 +1,4 @@
+import { DecimalPipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
@@ -10,6 +11,8 @@ import { AsteroidService } from '../asteroids/asteroid.service';
 import { Countdown } from '../launches/countdown/countdown';
 import { Launch } from '../launches/launch.model';
 import { LaunchService } from '../launches/launch.service';
+import { IssPosition } from '../iss/iss.model';
+import { IssService } from '../iss/iss.service';
 import { MarsPhoto } from '../mars/mars.model';
 import { MarsService } from '../mars/mars.service';
 
@@ -34,7 +37,7 @@ function shiftIso(iso: string, days: number): string {
   selector: 'app-home',
   templateUrl: './home.html',
   styleUrl: './home.css',
-  imports: [RouterLink, ImgFade, Skeleton, Countdown],
+  imports: [RouterLink, ImgFade, Skeleton, Countdown, DecimalPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Home {
@@ -42,6 +45,7 @@ export class Home {
   private readonly launches = inject(LaunchService);
   private readonly asteroids = inject(AsteroidService);
   private readonly mars = inject(MarsService);
+  private readonly iss = inject(IssService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly hero = signal<HeroState>({ status: 'loading' });
@@ -54,6 +58,9 @@ export class Home {
 
   protected readonly marsLoading = signal(true);
   protected readonly latestMars = signal<MarsPhoto | null>(null);
+
+  protected readonly issLoading = signal(true);
+  protected readonly issPosition = signal<IssPosition | null>(null);
 
   constructor() {
     this.apod
@@ -99,6 +106,17 @@ export class Home {
           this.marsLoading.set(false);
         },
         error: () => this.marsLoading.set(false),
+      });
+
+    this.iss
+      .getPosition()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (position) => {
+          this.issPosition.set(position);
+          this.issLoading.set(false);
+        },
+        error: () => this.issLoading.set(false),
       });
   }
 

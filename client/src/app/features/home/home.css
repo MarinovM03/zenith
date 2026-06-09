@@ -220,6 +220,15 @@
   color: #ff9f6b;
 }
 
+.dash--iss .dash__glow {
+  background: radial-gradient(60% 60% at 100% 0%, rgba(56, 200, 220, 0.28), transparent 70%);
+}
+
+.dash--iss .dash__icon {
+  background: rgba(56, 200, 220, 0.16);
+  color: #7fe0ec;
+}
+
 .dash__section {
   font-size: 0.95rem;
   font-weight: 700;

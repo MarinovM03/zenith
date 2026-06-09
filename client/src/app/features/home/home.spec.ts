@@ -9,6 +9,8 @@ import { Asteroid } from '../asteroids/asteroid.model';
 import { AsteroidService } from '../asteroids/asteroid.service';
 import { Launch } from '../launches/launch.model';
 import { LaunchService } from '../launches/launch.service';
+import { IssPosition } from '../iss/iss.model';
+import { IssService } from '../iss/iss.service';
 import { MarsPhoto } from '../mars/mars.model';
 import { MarsService } from '../mars/mars.service';
 
@@ -62,6 +64,15 @@ const MARS: MarsPhoto = {
   rover: 'Perseverance',
 };
 
+const ISS: IssPosition = {
+  latitude: 12.3,
+  longitude: -45.6,
+  altitude_km: 421,
+  velocity_kph: 27600,
+  visibility: 'daylight',
+  timestamp: 1780954224,
+};
+
 function configure() {
   TestBed.configureTestingModule({
     imports: [Home],
@@ -74,6 +85,7 @@ function configure() {
         useValue: { getFeed: () => of([asteroid(true), asteroid(false)]) },
       },
       { provide: MarsService, useValue: { getPhotos: () => of([MARS]) } },
+      { provide: IssService, useValue: { getPosition: () => of(ISS) } },
     ],
   });
 }
@@ -96,6 +108,7 @@ describe('Home', () => {
     expect(text).toContain('Launches');
     expect(text).toContain('hazardous');
     expect(text).toContain('Sol 1882');
+    expect(text).toContain('Live now');
   });
 
   it('shows the hazardous asteroid count', async () => {
