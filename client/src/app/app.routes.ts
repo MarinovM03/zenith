@@ -47,6 +47,11 @@ export const routes: Routes = [
       import('./features/asteroids/asteroids-list/asteroids-list').then((m) => m.AsteroidsList),
   },
   {
+    path: 'iss',
+    pathMatch: 'full',
+    loadComponent: () => import('./features/iss/iss-tracker/iss-tracker').then((m) => m.IssTracker),
+  },
+  {
     path: 'favourites',
     pathMatch: 'full',
     canActivate: [authGuard],

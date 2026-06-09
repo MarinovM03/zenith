@@ -1,0 +1,104 @@
+<main class="iss">
+  <header class="iss__head">
+    <h1 class="iss__title">Live ISS Tracker</h1>
+    <p class="iss__sub">
+      The International Space Station — a crewed lab orbiting ~420 km up at ~28,000 km/h, circling
+      Earth roughly every 90 minutes. This map shows where it is over the planet right now.
+    </p>
+  </header>
+
+  @if (status() === 'error') {
+    <div class="iss__error" role="alert">
+      <p>Couldn't reach the ISS feed.</p>
+      <p class="iss__retry">Retrying…</p>
+    </div>
+  } @else {
+    <div class="iss__grid">
+      <div class="iss__mapwrap">
+        <svg
+          class="iss__map"
+          viewBox="0 0 360 180"
+          preserveAspectRatio="xMidYMid meet"
+          role="img"
+          aria-label="World map showing the current ISS position"
+        >
+          <rect class="iss__ocean" x="0" y="0" width="360" height="180" />
+          @for (m of meridians; track m) {
+            <line
+              class="iss__grid-line"
+              [class.iss__grid-line--axis]="m === 180"
+              [attr.x1]="m"
+              y1="0"
+              [attr.x2]="m"
+              y2="180"
+            />
+          }
+          @for (p of parallels; track p) {
+            <line
+              class="iss__grid-line"
+              [class.iss__grid-line--axis]="p === 90"
+              x1="0"
+              [attr.y1]="p"
+              x2="360"
+              [attr.y2]="p"
+            />
+          }
+          @for (pt of trail(); track $index) {
+            <circle
+              class="iss__trail"
+              [attr.cx]="pt.x"
+              [attr.cy]="pt.y"
+              r="1.1"
+              [attr.opacity]="trailOpacity($index)"
+            />
+          }
+          @if (marker(); as m) {
+            <circle class="iss__halo" [attr.cx]="m.x" [attr.cy]="m.y" r="5.5" />
+            <circle class="iss__dot" [attr.cx]="m.x" [attr.cy]="m.y" r="2.4" />
+          }
+        </svg>
+        @if (!marker()) {
+          <div class="iss__locating">
+            <span class="iss__locating-dot" aria-hidden="true"></span>
+            Locating the ISS…
+          </div>
+        }
+        @if (stale()) {
+          <span class="iss__reconnect">reconnecting…</span>
+        }
+      </div>
+
+      <aside class="iss__stats">
+        @if (position(); as p) {
+          <div class="iss__stat">
+            <span class="iss__stat-label">Latitude</span>
+            <span class="iss__stat-value">{{ p.latitude | number: '1.2-2' }}°</span>
+          </div>
+          <div class="iss__stat">
+            <span class="iss__stat-label">Longitude</span>
+            <span class="iss__stat-value">{{ p.longitude | number: '1.2-2' }}°</span>
+          </div>
+          <div class="iss__stat">
+            <span class="iss__stat-label">Altitude</span>
+            <span class="iss__stat-value">{{ p.altitude_km | number: '1.0-0' }} km</span>
+          </div>
+          <div class="iss__stat">
+            <span class="iss__stat-label">Speed</span>
+            <span class="iss__stat-value">{{ p.velocity_kph | number: '1.0-0' }} km/h</span>
+          </div>
+          <div class="iss__stat">
+            <span class="iss__stat-label">Sunlight</span>
+            <span class="iss__stat-value">{{ visibilityLabel() }}</span>
+          </div>
+        } @else {
+          @for (slot of [0, 1, 2, 3, 4]; track slot) {
+            <div class="iss__stat">
+              <app-skeleton width="45%" height="0.8rem" />
+              <app-skeleton width="70%" height="1.4rem" />
+            </div>
+          }
+        }
+      </aside>
+    </div>
+  }
+</main>
