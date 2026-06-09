@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
@@ -8,7 +9,7 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
 from app.core.config import get_settings
-from app.routers import apod, asteroid, auth, favourite, health, launch, mars
+from app.routers import apod, asteroid, auth, favourite, health, iss, launch, mars
 from app.services.http_client import close_shared_http_client
 
 
@@ -19,8 +20,16 @@ def configure_logging(level: str) -> None:
     )
 
 
+async def _warm_iss_connection() -> None:
+    try:
+        await iss.get_iss_service().get_position()
+    except Exception:
+        logging.getLogger(__name__).debug("ISS connection warm-up skipped")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+    app.state.iss_warmup = asyncio.create_task(_warm_iss_connection())
     yield
     await close_shared_http_client()
 
@@ -52,6 +61,7 @@ def create_app() -> FastAPI:
     app.include_router(launch.router)
     app.include_router(mars.router)
     app.include_router(asteroid.router)
+    app.include_router(iss.router)
     app.include_router(favourite.router)
 
     logging.getLogger(__name__).info(

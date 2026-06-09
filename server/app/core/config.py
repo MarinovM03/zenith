@@ -36,6 +36,7 @@ class Settings(BaseSettings):
     nasa_base_url: str = Field(default="https://api.nasa.gov")
     mars_base_url: str = Field(default="https://mars.nasa.gov")
     launch_library_base_url: str = Field(default="https://ll.thespacedevs.com/2.2.0")
+    iss_base_url: str = Field(default="https://api.wheretheiss.at/v1")
 
     @computed_field  # type: ignore[prop-decorator]
     @property
