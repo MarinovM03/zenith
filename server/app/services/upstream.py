@@ -25,7 +25,7 @@ async def request_json(
     Client errors such as 404 are raised immediately, unless retry_on_404 is set
     (some upstreams flakily 404 a resource that does exist)."""
     last_exc: httpx.HTTPError | None = None
-    timeout = httpx.Timeout(timeout_seconds, connect=min(timeout_seconds, 5.0))
+    timeout = httpx.Timeout(timeout_seconds, connect=min(timeout_seconds, 10.0))
     for attempt in range(retries + 1):
         try:
             response = await http.get(url, params=params, timeout=timeout)
