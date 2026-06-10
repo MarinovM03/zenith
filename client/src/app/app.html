@@ -1,3 +1,4 @@
+<a class="skip-link" href="#content">Skip to content</a>
 <app-cosmic-background />
 
 @if (status() === 'loading' || status() === 'idle') {
@@ -49,5 +50,7 @@
     </div>
   </header>
 
-  <router-outlet />
+  <div id="content" tabindex="-1">
+    <router-outlet />
+  </div>
 }
