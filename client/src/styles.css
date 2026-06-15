@@ -1,5 +1,4 @@
 :root {
-  /* Surfaces */
   --color-bg: #08060f;
   --color-bg-deep: #050310;
   --color-surface: #14111f;
@@ -9,29 +8,24 @@
   --color-border: #2a2240;
   --color-border-strong: #3a3057;
 
-  /* Text */
   --color-text: #f4f1fb;
   --color-text-muted: #9a90b5;
 
-  /* Brand accent (violet, from the BH-merger palette) */
   --color-accent: #a64ce8;
   --color-accent-strong: #be7cf2;
   --color-on-accent: #f6f1ff;
   --color-accent-soft: rgba(166, 76, 232, 0.16);
   --color-accent-glow: rgba(166, 76, 232, 0.5);
 
-  /* Cosmic accents */
   --color-nebula-violet: rgba(150, 75, 230, 0.12);
   --color-nebula-blue: rgba(80, 100, 235, 0.1);
   --color-nebula-pink: rgba(205, 90, 200, 0.08);
 
-  /* Status */
   --color-success: #2ee06a;
   --color-danger: #ff4d5e;
   --color-warning: #ffb43a;
   --color-live: #ff4d5e;
 
-  /* Spacing */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -40,14 +34,12 @@
   --space-8: 2rem;
   --space-10: 2.5rem;
 
-  /* Radius */
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 16px;
   --radius-xl: 22px;
   --radius-pill: 999px;
 
-  /* Elevation + glow */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.55);
   --shadow-pop: 0 18px 48px rgba(0, 0, 0, 0.65);
@@ -55,7 +47,6 @@
   --shadow-glow-strong: 0 0 48px rgba(166, 76, 232, 0.42);
   --ring-accent: 0 0 0 1px rgba(166, 76, 232, 0.4);
 
-  /* Cosmic gradients */
   --gradient-nebula:
     radial-gradient(65% 55% at 22% 18%, var(--color-nebula-violet), transparent 60%),
     radial-gradient(55% 50% at 80% 10%, var(--color-nebula-blue), transparent 58%),
@@ -91,7 +82,6 @@ body {
   overflow-x: hidden;
 }
 
-/* Ambient nebula base — sits behind the animated star canvas (z-index -1). */
 body::before {
   content: '';
   position: fixed;
@@ -143,7 +133,6 @@ h3 {
   }
 }
 
-/* Images fade in once decoded (see ImgFade directive) instead of popping in. */
 img[appImgFade] {
   opacity: 0;
   transition: opacity 0.45s ease;
@@ -160,7 +149,6 @@ img[appImgFade].is-loaded {
   }
 }
 
-/* Cross-fade between routes (View Transitions API, opt-in via the router). */
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation-duration: 0.25s;
@@ -173,7 +161,6 @@ img[appImgFade].is-loaded {
   }
 }
 
-/* Slim, themed scrollbars */
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--color-border-strong) transparent;
