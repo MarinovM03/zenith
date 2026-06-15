@@ -40,6 +40,51 @@
   padding: var(--space-3) var(--space-6);
 }
 
+.shell__menu {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+.shell__toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 40px;
+  height: 40px;
+  margin-left: auto;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.shell__bar {
+  width: 20px;
+  height: 2px;
+  margin: 0 auto;
+  border-radius: 2px;
+  background-color: var(--color-text);
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.shell__toggle--open .shell__bar:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.shell__toggle--open .shell__bar:nth-child(2) {
+  opacity: 0;
+}
+
+.shell__toggle--open .shell__bar:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
 .brand {
   display: flex;
   align-items: center;
@@ -164,28 +209,54 @@
 }
 
 @media (max-width: 640px) {
-  .shell__email {
-    display: none;
-  }
-
   .shell__inner {
     gap: var(--space-3);
     padding: var(--space-3) var(--space-4);
   }
 
-  .nav {
-    overflow-x: auto;
-    scrollbar-width: none;
-    gap: 0;
+  .shell__toggle {
+    display: flex;
   }
 
-  .nav::-webkit-scrollbar {
+  .shell__menu {
     display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    background-color: rgba(8, 6, 15, 0.97);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    border-bottom: 1px solid rgba(166, 76, 232, 0.18);
+    box-shadow: var(--shadow-card);
+  }
+
+  .shell__menu--open {
+    display: flex;
+  }
+
+  .nav {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-1);
+    margin-right: 0;
   }
 
   .nav__link {
-    padding: var(--space-2);
-    font-size: 0.85rem;
-    white-space: nowrap;
+    padding: var(--space-3);
+  }
+
+  .shell__user {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+  }
+
+  .shell__btn {
+    text-align: center;
   }
 }

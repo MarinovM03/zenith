@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 import { AuthService } from './core/services/auth.service';
@@ -18,6 +18,15 @@ export class App {
   protected readonly user = this.auth.user;
   protected readonly status = this.auth.status;
   protected readonly isAuthenticated = this.auth.isAuthenticated;
+  protected readonly menuOpen = signal(false);
+
+  protected toggleMenu(): void {
+    this.menuOpen.update((open) => !open);
+  }
+
+  protected closeMenu(): void {
+    this.menuOpen.set(false);
+  }
 
   logout(): void {
     this.auth.logout().subscribe({
