@@ -1,0 +1,67 @@
+.about {
+  margin-top: var(--space-8);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, rgba(24, 18, 40, 0.5), rgba(16, 12, 28, 0.5));
+  overflow: hidden;
+}
+
+.about__summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  cursor: pointer;
+  font-weight: 700;
+  list-style: none;
+  user-select: none;
+}
+
+.about__summary::-webkit-details-marker {
+  display: none;
+}
+
+.about__icon {
+  display: inline-flex;
+  color: var(--color-accent);
+}
+
+.about__icon svg,
+.about__chevron svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.about__heading {
+  flex: 1;
+}
+
+.about__chevron {
+  display: inline-flex;
+  color: var(--color-text-muted);
+  transition: transform 0.2s ease;
+}
+
+.about[open] .about__chevron {
+  transform: rotate(180deg);
+}
+
+.about__body {
+  padding: 0 var(--space-4) var(--space-4);
+  color: var(--color-text-muted);
+  line-height: 1.7;
+}
+
+.about__body p {
+  margin: 0 0 var(--space-3);
+}
+
+.about__body p:last-child {
+  margin-bottom: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about__chevron {
+    transition: none;
+  }
+}

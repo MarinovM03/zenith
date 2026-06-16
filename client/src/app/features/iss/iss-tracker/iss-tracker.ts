@@ -10,6 +10,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { EMPTY, catchError, interval, startWith, switchMap } from 'rxjs';
 
+import { AboutPanel } from '../../../shared/about-panel/about-panel';
 import { Skeleton } from '../../../shared/skeleton/skeleton';
 import { IssPosition } from '../iss.model';
 import { IssService } from '../iss.service';
@@ -26,7 +27,7 @@ interface TrailPoint {
   selector: 'app-iss-tracker',
   templateUrl: './iss-tracker.html',
   styleUrl: './iss-tracker.css',
-  imports: [DecimalPipe, Skeleton],
+  imports: [DecimalPipe, Skeleton, AboutPanel],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IssTracker {

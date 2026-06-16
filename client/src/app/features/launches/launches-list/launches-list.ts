@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 
+import { AboutPanel } from '../../../shared/about-panel/about-panel';
 import { ImgFade } from '../../../shared/img-fade/img-fade';
 import { Skeleton } from '../../../shared/skeleton/skeleton';
 import { Countdown } from '../countdown/countdown';
@@ -20,7 +21,7 @@ type LoadState =
   selector: 'app-launches-list',
   templateUrl: './launches-list.html',
   styleUrl: './launches-list.css',
-  imports: [RouterLink, DatePipe, Countdown, Skeleton, ImgFade],
+  imports: [RouterLink, DatePipe, Countdown, Skeleton, ImgFade, AboutPanel],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LaunchesList {
