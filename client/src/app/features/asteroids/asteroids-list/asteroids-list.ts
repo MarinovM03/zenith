@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
+import { AboutPanel } from '../../../shared/about-panel/about-panel';
 import { Skeleton } from '../../../shared/skeleton/skeleton';
 import { Asteroid } from '../asteroid.model';
 import { AsteroidService } from '../asteroid.service';
@@ -34,7 +35,7 @@ function shiftIso(iso: string, days: number): string {
   selector: 'app-asteroids-list',
   templateUrl: './asteroids-list.html',
   styleUrl: './asteroids-list.css',
-  imports: [DecimalPipe, Skeleton],
+  imports: [DecimalPipe, Skeleton, AboutPanel],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AsteroidsList {

@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
+import { AboutPanel } from '../../../shared/about-panel/about-panel';
 import { ImgFade } from '../../../shared/img-fade/img-fade';
 import { Skeleton } from '../../../shared/skeleton/skeleton';
 import { MarsPhoto } from '../mars.model';
@@ -15,7 +16,7 @@ type LoadState =
   selector: 'app-mars-gallery',
   templateUrl: './mars-gallery.html',
   styleUrl: './mars-gallery.css',
-  imports: [Skeleton, ImgFade],
+  imports: [Skeleton, ImgFade, AboutPanel],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MarsGallery {

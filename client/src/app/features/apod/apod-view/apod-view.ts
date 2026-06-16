@@ -12,6 +12,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 
+import { AboutPanel } from '../../../shared/about-panel/about-panel';
 import { FavouriteButton } from '../../../shared/favourite-button/favourite-button';
 import { ImgFade } from '../../../shared/img-fade/img-fade';
 import { Skeleton } from '../../../shared/skeleton/skeleton';
@@ -27,7 +28,7 @@ type LoadState =
   selector: 'app-apod-view',
   templateUrl: './apod-view.html',
   styleUrl: './apod-view.css',
-  imports: [RouterLink, Skeleton, ImgFade, FavouriteButton],
+  imports: [RouterLink, Skeleton, ImgFade, FavouriteButton, AboutPanel],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ApodView {
