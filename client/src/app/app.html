@@ -1,101 +1,95 @@
 <a class="skip-link" href="#content">Skip to content</a>
 <app-cosmic-background />
 
-@if (status() === 'loading' || status() === 'idle') {
-  <main class="boot">
-    <span class="boot__spinner" aria-label="Loading"></span>
-  </main>
-} @else {
-  <header class="shell">
-    <div class="shell__inner">
-      <a routerLink="/" class="brand" (click)="closeMenu()">
-        <span class="brand__mark" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none">
-            <path d="M12 2 L15 9 L22 12 L15 15 L12 22 L9 15 L2 12 L9 9 Z" fill="currentColor" />
-          </svg>
-        </span>
-        <span class="brand__name">Zenith</span>
-      </a>
+<header class="shell">
+  <div class="shell__inner">
+    <a routerLink="/" class="brand" (click)="closeMenu()">
+      <span class="brand__mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M12 2 L15 9 L22 12 L15 15 L12 22 L9 15 L2 12 L9 9 Z" fill="currentColor" />
+        </svg>
+      </span>
+      <span class="brand__name">Zenith</span>
+    </a>
 
-      <button
-        type="button"
-        class="shell__toggle"
-        [class.shell__toggle--open]="menuOpen()"
-        [attr.aria-expanded]="menuOpen()"
-        aria-controls="primary-menu"
-        aria-label="Toggle navigation menu"
-        (click)="toggleMenu()"
-      >
-        <span class="shell__bar"></span>
-        <span class="shell__bar"></span>
-        <span class="shell__bar"></span>
-      </button>
+    <button
+      type="button"
+      class="shell__toggle"
+      [class.shell__toggle--open]="menuOpen()"
+      [attr.aria-expanded]="menuOpen()"
+      aria-controls="primary-menu"
+      aria-label="Toggle navigation menu"
+      (click)="toggleMenu()"
+    >
+      <span class="shell__bar"></span>
+      <span class="shell__bar"></span>
+      <span class="shell__bar"></span>
+    </button>
 
-      <div class="shell__menu" [class.shell__menu--open]="menuOpen()" id="primary-menu">
-        <nav class="nav">
-          <a
-            class="nav__link"
-            routerLink="/apod"
-            routerLinkActive="nav__link--active"
-            (click)="closeMenu()"
-            >Picture of the Day</a
-          >
-          <a
-            class="nav__link"
-            routerLink="/launches"
-            routerLinkActive="nav__link--active"
-            (click)="closeMenu()"
-            >Launches</a
-          >
-          <a
-            class="nav__link"
-            routerLink="/mars"
-            routerLinkActive="nav__link--active"
-            (click)="closeMenu()"
-            >Mars</a
-          >
-          <a
-            class="nav__link"
-            routerLink="/asteroids"
-            routerLinkActive="nav__link--active"
-            (click)="closeMenu()"
-            >Asteroids</a
-          >
-          <a
-            class="nav__link"
-            routerLink="/iss"
-            routerLinkActive="nav__link--active"
-            (click)="closeMenu()"
-            >ISS</a
-          >
-        </nav>
+    <div class="shell__menu" [class.shell__menu--open]="menuOpen()" id="primary-menu">
+      <nav class="nav">
+        <a
+          class="nav__link"
+          routerLink="/apod"
+          routerLinkActive="nav__link--active"
+          (click)="closeMenu()"
+          >Picture of the Day</a
+        >
+        <a
+          class="nav__link"
+          routerLink="/launches"
+          routerLinkActive="nav__link--active"
+          (click)="closeMenu()"
+          >Launches</a
+        >
+        <a
+          class="nav__link"
+          routerLink="/mars"
+          routerLinkActive="nav__link--active"
+          (click)="closeMenu()"
+          >Mars</a
+        >
+        <a
+          class="nav__link"
+          routerLink="/asteroids"
+          routerLinkActive="nav__link--active"
+          (click)="closeMenu()"
+          >Asteroids</a
+        >
+        <a
+          class="nav__link"
+          routerLink="/iss"
+          routerLinkActive="nav__link--active"
+          (click)="closeMenu()"
+          >ISS</a
+        >
+      </nav>
 
-        <div class="shell__user">
-          @if (isAuthenticated()) {
-            <a
-              class="nav__link nav__link--fav"
-              routerLink="/favourites"
-              routerLinkActive="nav__link--active"
-              (click)="closeMenu()"
-            >
-              <span class="nav__star" aria-hidden="true">★</span> Favourites
-            </a>
-            <span class="shell__email">{{ user()?.email }}</span>
-            <button type="button" class="shell__btn" (click)="logout(); closeMenu()">
-              Log out
-            </button>
-          } @else {
-            <a routerLink="/login" class="shell__btn" (click)="closeMenu()">Log in</a>
-            <a routerLink="/register" class="shell__btn shell__btn--accent" (click)="closeMenu()"
-              >Sign up</a
-            >
-          }
-        </div>
+      <div class="shell__user">
+        @if (status() === 'loading' || status() === 'idle') {
+          <span class="shell__auth-pending" role="status" aria-label="Checking your session"></span>
+        } @else if (isAuthenticated()) {
+          <a
+            class="nav__link nav__link--fav"
+            routerLink="/favourites"
+            routerLinkActive="nav__link--active"
+            (click)="closeMenu()"
+          >
+            <span class="nav__star" aria-hidden="true">★</span> Favourites
+          </a>
+          <span class="shell__email">{{ user()?.email }}</span>
+          <button type="button" class="shell__btn" (click)="logout(); closeMenu()">Log out</button>
+        } @else {
+          <a routerLink="/login" class="shell__btn" (click)="closeMenu()">Log in</a>
+          <a routerLink="/register" class="shell__btn shell__btn--accent" (click)="closeMenu()"
+            >Sign up</a
+          >
+        }
       </div>
     </div>
-  </header>
-
-  <div id="content" tabindex="-1">
-    <router-outlet />
   </div>
-}
+</header>
+
+<div id="content" tabindex="-1">
+  <router-outlet />
+</div>

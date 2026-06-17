@@ -25,11 +25,14 @@ describe('App shell', () => {
     });
   }
 
-  it('shows the loading state while idle', () => {
+  it('renders the shell with a pending auth corner while idle', () => {
     configure(fakeAuth({ status: 'idle', user: null }));
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('.boot')).toBeTruthy();
+    const el = fixture.nativeElement;
+    expect(el.querySelector('.shell__auth-pending')).toBeTruthy();
+    expect(el.textContent).toContain('Picture of the Day');
+    expect(el.textContent).not.toContain('Log in');
   });
 
   it('shows log in / sign up when unauthenticated', () => {

@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Observable, catchError, of, switchMap, tap } from 'rxjs';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { Observable, catchError, filter, of, switchMap, take, tap } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 
@@ -41,6 +42,19 @@ export class AuthService {
   readonly accessToken = computed(() => this.state().accessToken);
   readonly status = computed(() => this.state().status);
   readonly isAuthenticated = computed(() => this.state().status === 'authenticated');
+
+  private readonly status$ = toObservable(this.status);
+
+  whenSettled(): Observable<AuthStatus> {
+    const current = this.status();
+    if (current === 'authenticated' || current === 'unauthenticated') {
+      return of(current);
+    }
+    return this.status$.pipe(
+      filter((s): s is AuthStatus => s === 'authenticated' || s === 'unauthenticated'),
+      take(1),
+    );
+  }
 
   initialize(): Observable<User | null> {
     this.state.update((s) => ({ ...s, status: 'loading' }));

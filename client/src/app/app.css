@@ -1,17 +1,17 @@
-.boot {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.boot__spinner {
-  width: 28px;
-  height: 28px;
+.shell__auth-pending {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  border: 3px solid var(--color-border);
+  border: 2px solid var(--color-border);
   border-top-color: var(--color-accent);
   animation: spin 0.7s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shell__auth-pending {
+    animation: none;
+  }
 }
 
 @keyframes spin {
