@@ -150,6 +150,7 @@ docker-compose.yml      Postgres + Redis (local deps only)
 - **Mars data:** comes from `mars.nasa.gov/rss/api` (Perseverance / `mars2020`); the old `mars-photos.herokuapp.com` API is dead.
 - **NASA latency:** NASA hosts have high cold-CDN latency (a cold deep Mars page can take 15–20s). Upstream read timeouts are generous (Mars ~25s, APOD ~15s) and timeouts are not negative-cached, so a retry can still succeed. Slowness here is upstream, not your firewall.
 - **Caching:** every upstream call is cached in Redis (read-through), with per-resource TTLs (APOD 24h, upcoming launches ~5–10 min, Mars and past launches 24h, asteroids 6h).
+- **Rendering:** content routes are prerendered to static HTML (Angular SSG, `outputMode: static`) for fast first paint and SEO; live data loads client-side after hydration. Auth and dynamic routes (`/login`, `/register`, `/favourites`, `/apod/:date`, `/launches/:id`) render client-side, so a static host must serve `index.csr.html` as their SPA fallback. Don't add timers or `window`/`document` access in a component constructor without a browser guard (`isPlatformBrowser`/`afterNextRender`), or prerendering will fail.
 
 ---
 
@@ -157,4 +158,4 @@ docker-compose.yml      Postgres + Redis (local deps only)
 
 **Backend** is layered — `routers/` → `services/` → `repositories/` → `models/`; routers never touch the DB directly. Pydantic v2 schemas are kept separate from the SQLAlchemy ORM, everything is `async`, and every upstream call goes through a read-through Redis cache. Auth is a JWT access token (15 min) plus a 7-day HTTP-only refresh cookie, with bcrypt password hashing (SHA-256 pre-hash) and slowapi rate limiting on auth routes.
 
-**Frontend** is standalone Angular components with signal-based state, `inject()`, `OnPush`, and lazy-loaded feature routes. Cross-cutting concerns (auth, HTTP, toasts) live in `core/services/`; reusable UI in `shared/`; global design tokens in `src/styles.css`.
+**Frontend** is standalone Angular components with signal-based state, `inject()`, `OnPush`, and lazy-loaded feature routes. Content routes are prerendered at build time (static SSG) for fast first paint and SEO, then hydrated on the client. Cross-cutting concerns (auth, HTTP, toasts) live in `core/services/`; reusable UI in `shared/`; global design tokens in `src/styles.css`.

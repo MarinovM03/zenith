@@ -1,3 +1,4 @@
+import { isPlatformBrowser } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -5,6 +6,7 @@ import {
   DestroyRef,
   inject,
   input,
+  PLATFORM_ID,
   signal,
 } from '@angular/core';
 
@@ -35,7 +37,9 @@ export class Countdown {
   protected readonly label = computed(() => formatCountdown(Math.max(0, this.remaining())));
 
   constructor() {
-    const ticker = setInterval(() => this.now.set(Date.now()), 1000);
-    inject(DestroyRef).onDestroy(() => clearInterval(ticker));
+    if (isPlatformBrowser(inject(PLATFORM_ID))) {
+      const ticker = setInterval(() => this.now.set(Date.now()), 1000);
+      inject(DestroyRef).onDestroy(() => clearInterval(ticker));
+    }
   }
 }

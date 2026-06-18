@@ -1,8 +1,9 @@
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, isPlatformBrowser } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  PLATFORM_ID,
   computed,
   inject,
   signal,
@@ -48,6 +49,10 @@ export class IssTracker {
   });
 
   constructor() {
+    if (!isPlatformBrowser(inject(PLATFORM_ID))) {
+      return;
+    }
+
     interval(POLL_MS)
       .pipe(
         startWith(0),

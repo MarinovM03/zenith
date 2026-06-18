@@ -118,8 +118,10 @@ export class CosmicBackground {
   private finePointer = true;
 
   constructor() {
-    afterNextRender(() => this.init());
-    this.destroyRef.onDestroy(() => this.teardown());
+    afterNextRender(() => {
+      this.init();
+      this.destroyRef.onDestroy(() => this.teardown());
+    });
   }
 
   private init(): void {
