@@ -1,7 +1,17 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
-import { Observable, catchError, filter, of, switchMap, take, tap } from 'rxjs';
+import {
+  Observable,
+  catchError,
+  filter,
+  finalize,
+  of,
+  shareReplay,
+  switchMap,
+  take,
+  tap,
+} from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 
@@ -37,6 +47,7 @@ export class AuthService {
   private readonly baseUrl = environment.apiBaseUrl;
 
   private readonly state = signal<AuthState>(INITIAL_STATE);
+  private refreshRequest: Observable<TokenResponse> | null = null;
 
   readonly user = computed(() => this.state().user);
   readonly accessToken = computed(() => this.state().accessToken);
@@ -87,13 +98,26 @@ export class AuthService {
   logout(): Observable<void> {
     return this.http
       .post<void>(`${this.baseUrl}/auth/logout`, {}, { withCredentials: true })
-      .pipe(tap(() => this.state.set({ ...INITIAL_STATE, status: 'unauthenticated' })));
+      .pipe(finalize(() => this.clearSession()));
   }
 
   refresh(): Observable<TokenResponse> {
-    return this.http
+    if (this.refreshRequest) {
+      return this.refreshRequest;
+    }
+
+    this.refreshRequest = this.http
       .post<TokenResponse>(`${this.baseUrl}/auth/refresh`, {}, { withCredentials: true })
-      .pipe(tap((response) => this.setAccessToken(response.access_token)));
+      .pipe(
+        tap((response) => this.setAccessToken(response.access_token)),
+        finalize(() => (this.refreshRequest = null)),
+        shareReplay({ bufferSize: 1, refCount: false }),
+      );
+    return this.refreshRequest;
+  }
+
+  clearSession(): void {
+    this.state.set({ ...INITIAL_STATE, status: 'unauthenticated' });
   }
 
   fetchMe(): Observable<User> {
