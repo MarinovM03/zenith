@@ -43,6 +43,9 @@ logs/
 
 CLAUDE.md
 .claude/
+.agents/
+AGENTS.md
+docs/ROADMAP.md
 
 postgres-data/
 redis-data/
