@@ -4,13 +4,13 @@
       @switch (h.status) {
         @case ('ready') {
           <a class="hero__media" routerLink="/apod" aria-label="Open today's picture">
-            @if (heroImage(h.apod); as img) {
-              <img class="hero__img" appImgFade [src]="img" [alt]="h.apod.title" decoding="async" />
+            @if (heroImage(h.data); as img) {
+              <img class="hero__img" appImgFade [src]="img" [alt]="h.data.title" decoding="async" />
             }
             <div class="hero__scrim"></div>
             <div class="hero__content">
-              <span class="hero__eyebrow">Picture of the Day · {{ h.apod.date }}</span>
-              <h1 class="hero__title">{{ h.apod.title }}</h1>
+              <span class="hero__eyebrow">Picture of the Day · {{ h.data.date }}</span>
+              <h1 class="hero__title">{{ h.data.title }}</h1>
               <span class="hero__cta">Explore today's picture →</span>
             </div>
           </a>
@@ -24,12 +24,13 @@
           />
         }
         @case ('error') {
-          <div class="hero__placeholder hero__placeholder--error">
+          <div class="hero__placeholder hero__placeholder--error" role="alert">
             <h1 class="hero__title">Welcome to Zenith</h1>
-            <p>
-              Today's picture is taking a moment.
+            <p>Today's picture is taking a moment.</p>
+            <div class="hero__actions">
+              <button type="button" class="home__retry" (click)="loadHero()">Try again</button>
               <a routerLink="/apod">Open the archive →</a>
-            </p>
+            </div>
           </div>
         }
       }
@@ -37,179 +38,261 @@
   </section>
 
   <section class="dash-grid">
-    <a class="dash dash--launch" routerLink="/launches">
-      <span class="dash__glow" aria-hidden="true"></span>
-      <span class="dash__head">
-        <span class="dash__icon" aria-hidden="true">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.8"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path
-              d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"
-            />
-            <path
-              d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"
-            />
-            <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
-            <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
-          </svg>
-        </span>
-        <span class="dash__section">Launches</span>
-        <span class="dash__arrow" aria-hidden="true">→</span>
-      </span>
-      @if (launchLoading()) {
-        <span class="dash__body">
-          <app-skeleton width="70%" height="1.9rem" />
-          <app-skeleton width="50%" height="0.9rem" />
-        </span>
-      } @else if (nextLaunch(); as launch) {
-        <span class="dash__body">
-          <span class="dash__value"><app-countdown [target]="launch.net" /></span>
-          <span class="dash__meta">{{ launch.name }}</span>
-        </span>
-      } @else {
-        <span class="dash__body">
-          <span class="dash__value dash__value--muted">No upcoming launch</span>
-        </span>
-      }
-    </a>
-
-    <a class="dash dash--asteroids" routerLink="/asteroids">
-      <span class="dash__glow" aria-hidden="true"></span>
-      <span class="dash__head">
-        <span class="dash__icon" aria-hidden="true">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.8"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <circle cx="12" cy="12" r="3" />
-            <circle cx="19" cy="5" r="2" />
-            <circle cx="5" cy="19" r="2" />
-            <path d="M10.4 21.9a10 10 0 0 0 9.941-15.416" />
-            <path d="M13.5 2.1a10 10 0 0 0-9.841 15.416" />
-          </svg>
-        </span>
-        <span class="dash__section">Asteroids</span>
-        <span class="dash__arrow" aria-hidden="true">→</span>
-      </span>
-      @if (asteroidLoading()) {
-        <span class="dash__body">
-          <app-skeleton width="35%" height="1.9rem" />
-          <app-skeleton width="65%" height="0.9rem" />
-        </span>
-      } @else if (asteroidStats(); as stats) {
-        <span class="dash__body">
-          <span class="dash__value">{{ stats.total }}</span>
-          <span class="dash__meta">
-            near-Earth · 7 days · <span class="dash__haz">{{ stats.hazardous }} hazardous</span>
-          </span>
-        </span>
-      } @else {
-        <span class="dash__body">
-          <span class="dash__value dash__value--muted">View feed</span>
-        </span>
-      }
-    </a>
-
-    <a class="dash dash--mars" routerLink="/mars">
-      @if (!marsLoading() && latestMars(); as photo) {
-        <span class="dash__bg">
-          <img
-            appImgFade
-            [src]="photo.img_src"
-            [alt]="photo.camera"
-            loading="lazy"
-            decoding="async"
-          />
-        </span>
-        <span class="dash__bg-scrim" aria-hidden="true"></span>
-      } @else {
+    <div class="dash-wrap">
+      <a
+        class="dash dash--launch"
+        [class.dash--error]="launch().status === 'error'"
+        routerLink="/launches"
+      >
         <span class="dash__glow" aria-hidden="true"></span>
-      }
-      <span class="dash__head">
-        <span class="dash__icon" aria-hidden="true">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.8"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <circle cx="12" cy="12" r="10" />
-            <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
-            <path d="M2 12h20" />
-          </svg>
-        </span>
-        <span class="dash__section">Mars</span>
-        <span class="dash__arrow" aria-hidden="true">→</span>
-      </span>
-      @if (marsLoading()) {
-        <span class="dash__body">
-          <app-skeleton width="40%" height="1.9rem" />
-          <app-skeleton width="55%" height="0.9rem" />
-        </span>
-      } @else if (latestMars(); as photo) {
-        <span class="dash__body">
-          <span class="dash__value">Sol {{ photo.sol }}</span>
-          <span class="dash__meta">{{ photo.camera }}</span>
-        </span>
-      } @else {
-        <span class="dash__body">
-          <span class="dash__value dash__value--muted">Browse photos</span>
-        </span>
-      }
-    </a>
-
-    <a class="dash dash--iss" routerLink="/iss">
-      <span class="dash__glow" aria-hidden="true"></span>
-      <span class="dash__head">
-        <span class="dash__icon" aria-hidden="true">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.8"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M13 7 9 3 5 7l4 4" />
-            <path d="m17 11 4 4-4 4-4-4" />
-            <path d="m8 12 4 4 6-6-4-4Z" />
-            <path d="m16 8 3-3" />
-            <path d="M9 21a6 6 0 0 0-6-6" />
-          </svg>
-        </span>
-        <span class="dash__section">ISS</span>
-        <span class="dash__arrow" aria-hidden="true">→</span>
-      </span>
-      @if (issLoading()) {
-        <span class="dash__body">
-          <app-skeleton width="55%" height="1.9rem" />
-          <app-skeleton width="45%" height="0.9rem" />
-        </span>
-      } @else if (issPosition(); as iss) {
-        <span class="dash__body">
-          <span class="dash__value">Live now</span>
-          <span class="dash__meta">
-            {{ iss.latitude | number: '1.1-1' }}°, {{ iss.longitude | number: '1.1-1' }}° ·
-            {{ iss.altitude_km | number: '1.0-0' }} km
+        <span class="dash__head">
+          <span class="dash__icon" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"
+              />
+              <path
+                d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"
+              />
+              <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
+              <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
+            </svg>
           </span>
+          <span class="dash__section">Launches</span>
+          <span class="dash__arrow" aria-hidden="true">→</span>
         </span>
-      } @else {
-        <span class="dash__body">
-          <span class="dash__value dash__value--muted">Track the ISS</span>
-        </span>
+        @if (launch(); as state) {
+          @switch (state.status) {
+            @case ('loading') {
+              <span class="dash__body">
+                <app-skeleton width="70%" height="1.9rem" />
+                <app-skeleton width="50%" height="0.9rem" />
+              </span>
+            }
+            @case ('ready') {
+              <span class="dash__body">
+                <span class="dash__value"><app-countdown [target]="state.data.net" /></span>
+                <span class="dash__meta">{{ state.data.name }}</span>
+              </span>
+            }
+            @case ('empty') {
+              <span class="dash__body">
+                <span class="dash__value dash__value--muted">No upcoming launches</span>
+              </span>
+            }
+            @case ('error') {
+              <span class="dash__body" role="alert">
+                <span class="dash__value dash__value--muted">Launch data unavailable</span>
+              </span>
+            }
+          }
+        }
+      </a>
+      @if (launch().status === 'error') {
+        <button type="button" class="home__retry dash__retry" (click)="loadLaunch()">
+          Try again
+        </button>
       }
-    </a>
+    </div>
+
+    <div class="dash-wrap">
+      <a
+        class="dash dash--asteroids"
+        [class.dash--error]="asteroid().status === 'error'"
+        routerLink="/asteroids"
+      >
+        <span class="dash__glow" aria-hidden="true"></span>
+        <span class="dash__head">
+          <span class="dash__icon" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="3" />
+              <circle cx="19" cy="5" r="2" />
+              <circle cx="5" cy="19" r="2" />
+              <path d="M10.4 21.9a10 10 0 0 0 9.941-15.416" />
+              <path d="M13.5 2.1a10 10 0 0 0-9.841 15.416" />
+            </svg>
+          </span>
+          <span class="dash__section">Asteroids</span>
+          <span class="dash__arrow" aria-hidden="true">→</span>
+        </span>
+        @if (asteroid(); as state) {
+          @switch (state.status) {
+            @case ('loading') {
+              <span class="dash__body">
+                <app-skeleton width="35%" height="1.9rem" />
+                <app-skeleton width="65%" height="0.9rem" />
+              </span>
+            }
+            @case ('ready') {
+              <span class="dash__body">
+                <span class="dash__value">{{ state.data.total }}</span>
+                <span class="dash__meta">
+                  near-Earth · 7 days ·
+                  <span class="dash__haz">{{ state.data.hazardous }} hazardous</span>
+                </span>
+              </span>
+            }
+            @case ('empty') {
+              <span class="dash__body">
+                <span class="dash__value dash__value--muted">No close approaches</span>
+              </span>
+            }
+            @case ('error') {
+              <span class="dash__body" role="alert">
+                <span class="dash__value dash__value--muted">Asteroid data unavailable</span>
+              </span>
+            }
+          }
+        }
+      </a>
+      @if (asteroid().status === 'error') {
+        <button type="button" class="home__retry dash__retry" (click)="loadAsteroids()">
+          Try again
+        </button>
+      }
+    </div>
+
+    <div class="dash-wrap">
+      <a class="dash dash--mars" [class.dash--error]="mars().status === 'error'" routerLink="/mars">
+        @if (mars(); as state) {
+          @if (state.status === 'ready') {
+            <span class="dash__bg">
+              <img
+                appImgFade
+                [src]="state.data.img_src"
+                [alt]="state.data.camera"
+                loading="lazy"
+                decoding="async"
+              />
+            </span>
+            <span class="dash__bg-scrim" aria-hidden="true"></span>
+          } @else {
+            <span class="dash__glow" aria-hidden="true"></span>
+          }
+        }
+        <span class="dash__head">
+          <span class="dash__icon" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+              <path d="M2 12h20" />
+            </svg>
+          </span>
+          <span class="dash__section">Mars</span>
+          <span class="dash__arrow" aria-hidden="true">→</span>
+        </span>
+        @if (mars(); as state) {
+          @switch (state.status) {
+            @case ('loading') {
+              <span class="dash__body">
+                <app-skeleton width="40%" height="1.9rem" />
+                <app-skeleton width="55%" height="0.9rem" />
+              </span>
+            }
+            @case ('ready') {
+              <span class="dash__body">
+                <span class="dash__value">Sol {{ state.data.sol }}</span>
+                <span class="dash__meta">{{ state.data.camera }}</span>
+              </span>
+            }
+            @case ('empty') {
+              <span class="dash__body">
+                <span class="dash__value dash__value--muted">No recent photos</span>
+              </span>
+            }
+            @case ('error') {
+              <span class="dash__body" role="alert">
+                <span class="dash__value dash__value--muted">Mars data unavailable</span>
+              </span>
+            }
+          }
+        }
+      </a>
+      @if (mars().status === 'error') {
+        <button type="button" class="home__retry dash__retry" (click)="loadMars()">
+          Try again
+        </button>
+      }
+    </div>
+
+    <div class="dash-wrap">
+      <a class="dash dash--iss" [class.dash--error]="iss().status === 'error'" routerLink="/iss">
+        <span class="dash__glow" aria-hidden="true"></span>
+        <span class="dash__head">
+          <span class="dash__icon" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M13 7 9 3 5 7l4 4" />
+              <path d="m17 11 4 4-4 4-4-4" />
+              <path d="m8 12 4 4 6-6-4-4Z" />
+              <path d="m16 8 3-3" />
+              <path d="M9 21a6 6 0 0 0-6-6" />
+            </svg>
+          </span>
+          <span class="dash__section">ISS</span>
+          <span class="dash__arrow" aria-hidden="true">→</span>
+        </span>
+        @if (iss(); as state) {
+          @switch (state.status) {
+            @case ('loading') {
+              <span class="dash__body">
+                <app-skeleton width="55%" height="1.9rem" />
+                <app-skeleton width="45%" height="0.9rem" />
+              </span>
+            }
+            @case ('ready') {
+              <span class="dash__body">
+                <span class="dash__value">Live now</span>
+                <span class="dash__meta">
+                  {{ state.data.latitude | number: '1.1-1' }}°,
+                  {{ state.data.longitude | number: '1.1-1' }}° ·
+                  {{ state.data.altitude_km | number: '1.0-0' }} km
+                </span>
+              </span>
+            }
+            @case ('empty') {
+              <span class="dash__body">
+                <span class="dash__value dash__value--muted">Position unavailable</span>
+              </span>
+            }
+            @case ('error') {
+              <span class="dash__body" role="alert">
+                <span class="dash__value dash__value--muted">ISS position unavailable</span>
+              </span>
+            }
+          }
+        }
+      </a>
+      @if (iss().status === 'error') {
+        <button type="button" class="home__retry dash__retry" (click)="loadIss()">Try again</button>
+      }
+    </div>
   </section>
 </main>

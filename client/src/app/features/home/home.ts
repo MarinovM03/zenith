@@ -16,7 +16,11 @@ import { IssService } from '../iss/iss.service';
 import { MarsPhoto } from '../mars/mars.model';
 import { MarsService } from '../mars/mars.service';
 
-type HeroState = { status: 'loading' } | { status: 'ready'; apod: Apod } | { status: 'error' };
+type LoadState<T> =
+  | { status: 'loading' }
+  | { status: 'ready'; data: T }
+  | { status: 'empty' }
+  | { status: 'error' };
 
 interface AsteroidStats {
   total: number;
@@ -41,82 +45,94 @@ function shiftIso(iso: string, days: number): string {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Home {
-  private readonly apod = inject(ApodService);
-  private readonly launches = inject(LaunchService);
-  private readonly asteroids = inject(AsteroidService);
-  private readonly mars = inject(MarsService);
-  private readonly iss = inject(IssService);
+  private readonly apodService = inject(ApodService);
+  private readonly launchService = inject(LaunchService);
+  private readonly asteroidService = inject(AsteroidService);
+  private readonly marsService = inject(MarsService);
+  private readonly issService = inject(IssService);
   private readonly destroyRef = inject(DestroyRef);
 
-  protected readonly hero = signal<HeroState>({ status: 'loading' });
-
-  protected readonly launchLoading = signal(true);
-  protected readonly nextLaunch = signal<Launch | null>(null);
-
-  protected readonly asteroidLoading = signal(true);
-  protected readonly asteroidStats = signal<AsteroidStats | null>(null);
-
-  protected readonly marsLoading = signal(true);
-  protected readonly latestMars = signal<MarsPhoto | null>(null);
-
-  protected readonly issLoading = signal(true);
-  protected readonly issPosition = signal<IssPosition | null>(null);
+  protected readonly hero = signal<LoadState<Apod>>({ status: 'loading' });
+  protected readonly launch = signal<LoadState<Launch>>({ status: 'loading' });
+  protected readonly asteroid = signal<LoadState<AsteroidStats>>({ status: 'loading' });
+  protected readonly mars = signal<LoadState<MarsPhoto>>({ status: 'loading' });
+  protected readonly iss = signal<LoadState<IssPosition>>({ status: 'loading' });
 
   constructor() {
-    this.apod
+    this.loadHero();
+    this.loadLaunch();
+    this.loadAsteroids();
+    this.loadMars();
+    this.loadIss();
+  }
+
+  protected loadHero(): void {
+    this.hero.set({ status: 'loading' });
+    this.apodService
       .getByDate(null)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (apod) => this.hero.set({ status: 'ready', apod }),
+        next: (apod) => this.hero.set({ status: 'ready', data: apod }),
         error: () => this.hero.set({ status: 'error' }),
       });
+  }
 
-    this.launches
+  protected loadLaunch(): void {
+    this.launch.set({ status: 'loading' });
+    this.launchService
       .getUpcoming(1)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (list) => {
-          this.nextLaunch.set(list[0] ?? null);
-          this.launchLoading.set(false);
-        },
-        error: () => this.launchLoading.set(false),
+        next: (list) =>
+          this.launch.set(list[0] ? { status: 'ready', data: list[0] } : { status: 'empty' }),
+        error: () => this.launch.set({ status: 'error' }),
       });
+  }
 
+  protected loadAsteroids(): void {
+    this.asteroid.set({ status: 'loading' });
     const start = todayIso();
-    this.asteroids
+    this.asteroidService
       .getFeed(start, shiftIso(start, 6))
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (rocks) => {
-          this.asteroidStats.set({
-            total: rocks.length,
-            hazardous: rocks.filter((r) => r.hazardous).length,
-          });
-          this.asteroidLoading.set(false);
+          this.asteroid.set(
+            rocks.length
+              ? {
+                  status: 'ready',
+                  data: {
+                    total: rocks.length,
+                    hazardous: rocks.filter((rock) => rock.hazardous).length,
+                  },
+                }
+              : { status: 'empty' },
+          );
         },
-        error: () => this.asteroidLoading.set(false),
+        error: () => this.asteroid.set({ status: 'error' }),
       });
+  }
 
-    this.mars
+  protected loadMars(): void {
+    this.mars.set({ status: 'loading' });
+    this.marsService
       .getPhotos(1)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (photos) => {
-          this.latestMars.set(photos[0] ?? null);
-          this.marsLoading.set(false);
-        },
-        error: () => this.marsLoading.set(false),
+        next: (photos) =>
+          this.mars.set(photos[0] ? { status: 'ready', data: photos[0] } : { status: 'empty' }),
+        error: () => this.mars.set({ status: 'error' }),
       });
+  }
 
-    this.iss
+  protected loadIss(): void {
+    this.iss.set({ status: 'loading' });
+    this.issService
       .getPosition()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (position) => {
-          this.issPosition.set(position);
-          this.issLoading.set(false);
-        },
-        error: () => this.issLoading.set(false),
+        next: (position) => this.iss.set({ status: 'ready', data: position }),
+        error: () => this.iss.set({ status: 'error' }),
       });
   }
 

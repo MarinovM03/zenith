@@ -116,10 +116,46 @@
   font-weight: 600;
 }
 
+.hero__actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.home__retry {
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  background: rgba(15, 22, 34, 0.78);
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 700;
+  padding: var(--space-2) var(--space-4);
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    background-color 0.18s ease;
+}
+
+.home__retry:hover,
+.home__retry:focus-visible {
+  border-color: var(--color-accent);
+  background: var(--color-accent-soft);
+}
+
 .dash-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: var(--space-4);
+}
+
+.dash-wrap {
+  position: relative;
+}
+
+.dash-wrap > .dash {
+  height: 100%;
 }
 
 .dash {
@@ -147,6 +183,17 @@
   transform: translateY(-3px);
   border-color: rgba(166, 76, 232, 0.25);
   box-shadow: var(--shadow-pop), var(--shadow-glow);
+}
+
+.dash--error {
+  padding-bottom: 4.75rem;
+}
+
+.dash__retry {
+  position: absolute;
+  z-index: 2;
+  left: var(--space-6);
+  bottom: var(--space-5);
 }
 
 .dash__glow,
@@ -309,7 +356,8 @@
   .hero__media,
   .dash,
   .dash__glow,
-  .dash__arrow {
+  .dash__arrow,
+  .home__retry {
     transition: none;
   }
 

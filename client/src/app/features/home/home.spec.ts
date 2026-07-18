@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { of } from 'rxjs';
+import { NEVER, of, throwError } from 'rxjs';
 
 import { Home } from './home';
 import { Apod } from '../apod/apod.model';
@@ -73,19 +73,42 @@ const ISS: IssPosition = {
   timestamp: 1780954224,
 };
 
-function configure() {
+interface ServiceOverrides {
+  apod?: Partial<ApodService>;
+  launches?: Partial<LaunchService>;
+  asteroids?: Partial<AsteroidService>;
+  mars?: Partial<MarsService>;
+  iss?: Partial<IssService>;
+}
+
+function configure(overrides: ServiceOverrides = {}) {
   TestBed.configureTestingModule({
     imports: [Home],
     providers: [
       provideRouter([]),
-      { provide: ApodService, useValue: { getByDate: () => of(APOD) } },
-      { provide: LaunchService, useValue: { getUpcoming: () => of([LAUNCH]) } },
+      {
+        provide: ApodService,
+        useValue: { getByDate: () => of(APOD), ...overrides.apod },
+      },
+      {
+        provide: LaunchService,
+        useValue: { getUpcoming: () => of([LAUNCH]), ...overrides.launches },
+      },
       {
         provide: AsteroidService,
-        useValue: { getFeed: () => of([asteroid(true), asteroid(false)]) },
+        useValue: {
+          getFeed: () => of([asteroid(true), asteroid(false)]),
+          ...overrides.asteroids,
+        },
       },
-      { provide: MarsService, useValue: { getPhotos: () => of([MARS]) } },
-      { provide: IssService, useValue: { getPosition: () => of(ISS) } },
+      {
+        provide: MarsService,
+        useValue: { getPhotos: () => of([MARS]), ...overrides.mars },
+      },
+      {
+        provide: IssService,
+        useValue: { getPosition: () => of(ISS), ...overrides.iss },
+      },
     ],
   });
 }
@@ -118,5 +141,79 @@ describe('Home', () => {
 
     const haz = fixture.nativeElement.querySelector('.dash__haz');
     expect(haz?.textContent?.trim()).toBe('1 hazardous');
+  });
+
+  it('distinguishes empty results from failed requests', async () => {
+    configure({
+      launches: { getUpcoming: () => of([]) },
+      asteroids: { getFeed: () => of([]) },
+      mars: { getPhotos: () => of([]) },
+    });
+    const fixture = TestBed.createComponent(Home);
+    await settle(fixture);
+
+    const text = fixture.nativeElement.textContent ?? '';
+    expect(text).toContain('No upcoming launches');
+    expect(text).toContain('No close approaches');
+    expect(text).toContain('No recent photos');
+    expect(text).not.toContain('data unavailable');
+  });
+
+  it('shows independent error states and retry controls', async () => {
+    const failure = () => throwError(() => new Error('Unavailable'));
+    configure({
+      apod: { getByDate: failure },
+      launches: { getUpcoming: failure },
+      asteroids: { getFeed: failure },
+      mars: { getPhotos: failure },
+      iss: { getPosition: failure },
+    });
+    const fixture = TestBed.createComponent(Home);
+    await settle(fixture);
+
+    const text = fixture.nativeElement.textContent ?? '';
+    expect(text).toContain("Today's picture is taking a moment");
+    expect(text).toContain('Launch data unavailable');
+    expect(text).toContain('Asteroid data unavailable');
+    expect(text).toContain('Mars data unavailable');
+    expect(text).toContain('ISS position unavailable');
+    expect(fixture.nativeElement.querySelectorAll('.home__retry')).toHaveLength(5);
+  });
+
+  it('retries only the failed dashboard resource', async () => {
+    const getUpcoming = vi
+      .fn()
+      .mockReturnValueOnce(throwError(() => new Error('Unavailable')))
+      .mockReturnValueOnce(of([LAUNCH]));
+    const getFeed = vi.fn(() => of([asteroid(false)]));
+    configure({
+      launches: { getUpcoming },
+      asteroids: { getFeed },
+    });
+    const fixture = TestBed.createComponent(Home);
+    await settle(fixture);
+
+    const retry: HTMLButtonElement = fixture.nativeElement.querySelector(
+      '.dash--launch + .dash__retry',
+    );
+    retry.click();
+    fixture.detectChanges();
+
+    expect(getUpcoming).toHaveBeenCalledTimes(2);
+    expect(getFeed).toHaveBeenCalledTimes(1);
+    expect(fixture.nativeElement.textContent).toContain('Falcon 9 | Starlink');
+  });
+
+  it('keeps completed cards useful while another resource is still loading', async () => {
+    configure({ launches: { getUpcoming: () => NEVER } });
+    const fixture = TestBed.createComponent(Home);
+    await settle(fixture);
+
+    const text = fixture.nativeElement.textContent ?? '';
+    expect(fixture.nativeElement.querySelector('.dash--launch app-skeleton')).not.toBeNull();
+    expect(text).toContain('The Hydra Cluster of Galaxies');
+    expect(text).toContain('hazardous');
+    expect(text).toContain('Sol 1882');
+    expect(text).toContain('Live now');
   });
 });
