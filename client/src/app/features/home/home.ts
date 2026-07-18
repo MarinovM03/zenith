@@ -1,7 +1,16 @@
-import { DecimalPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { DecimalPipe, isPlatformBrowser } from '@angular/common';
+import {
+  ApplicationRef,
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  PLATFORM_ID,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
+import { first } from 'rxjs';
 
 import { ImgFade } from '../../shared/img-fade/img-fade';
 import { Skeleton } from '../../shared/skeleton/skeleton';
@@ -59,11 +68,20 @@ export class Home {
   protected readonly iss = signal<LoadState<IssPosition>>({ status: 'loading' });
 
   constructor() {
-    this.loadHero();
-    this.loadLaunch();
-    this.loadAsteroids();
-    this.loadMars();
-    this.loadIss();
+    if (isPlatformBrowser(inject(PLATFORM_ID))) {
+      inject(ApplicationRef)
+        .isStable.pipe(
+          first((isStable) => isStable),
+          takeUntilDestroyed(this.destroyRef),
+        )
+        .subscribe(() => {
+          this.loadHero();
+          this.loadLaunch();
+          this.loadAsteroids();
+          this.loadMars();
+          this.loadIss();
+        });
+    }
   }
 
   protected loadHero(): void {

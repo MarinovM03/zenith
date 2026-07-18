@@ -1,5 +1,6 @@
 import { isPlatformBrowser } from '@angular/common';
 import {
+  ApplicationRef,
   ChangeDetectionStrategy,
   Component,
   computed,
@@ -9,6 +10,8 @@ import {
   PLATFORM_ID,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { first } from 'rxjs';
 
 function formatCountdown(ms: number): string {
   const totalSeconds = Math.floor(ms / 1000);
@@ -37,9 +40,17 @@ export class Countdown {
   protected readonly label = computed(() => formatCountdown(Math.max(0, this.remaining())));
 
   constructor() {
+    const destroyRef = inject(DestroyRef);
     if (isPlatformBrowser(inject(PLATFORM_ID))) {
-      const ticker = setInterval(() => this.now.set(Date.now()), 1000);
-      inject(DestroyRef).onDestroy(() => clearInterval(ticker));
+      inject(ApplicationRef)
+        .isStable.pipe(
+          first((isStable) => isStable),
+          takeUntilDestroyed(destroyRef),
+        )
+        .subscribe(() => {
+          const ticker = setInterval(() => this.now.set(Date.now()), 1000);
+          destroyRef.onDestroy(() => clearInterval(ticker));
+        });
     }
   }
 }

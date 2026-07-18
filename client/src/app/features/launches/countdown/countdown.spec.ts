@@ -21,4 +21,32 @@ describe('Countdown', () => {
 
     expect(fixture.nativeElement.textContent).toContain('Liftoff');
   });
+
+  it('starts ticking after initial stability and clears the timer on destroy', async () => {
+    const baseTime = new Date('2026-07-18T20:00:00Z').getTime();
+    const nowSpy = vi.spyOn(Date, 'now').mockReturnValue(baseTime);
+    let timerId = 1;
+    const intervalSpy = vi.spyOn(globalThis, 'setInterval').mockImplementation(() => {
+      return timerId++;
+    });
+    const clearSpy = vi.spyOn(globalThis, 'clearInterval').mockImplementation(() => undefined);
+    const fixture = TestBed.createComponent(Countdown);
+    fixture.componentRef.setInput('target', new Date(baseTime + 1000).toISOString());
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const countdownCallIndex = intervalSpy.mock.calls.findIndex(([, delay]) => delay === 1000);
+    expect(countdownCallIndex).toBeGreaterThanOrEqual(0);
+    const tick = intervalSpy.mock.calls[countdownCallIndex][0];
+    const countdownTimer = intervalSpy.mock.results[countdownCallIndex].value;
+    nowSpy.mockReturnValue(baseTime + 2000);
+    if (typeof tick === 'function') {
+      tick();
+    }
+    fixture.detectChanges();
+    expect(fixture.nativeElement.textContent).toContain('Liftoff');
+
+    fixture.destroy();
+    expect(clearSpy).toHaveBeenCalledWith(countdownTimer);
+  });
 });
