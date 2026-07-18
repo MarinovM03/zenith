@@ -5,7 +5,14 @@ import { FavouriteButton } from './favourite-button';
 import { AuthService } from '../../core/services/auth.service';
 import { FavouriteService } from '../../core/services/favourite.service';
 
-function configure(saved: boolean, authed: boolean, addSpy = () => {}, removeSpy = () => {}) {
+function configure(
+  saved: boolean,
+  authed: boolean,
+  addSpy = () => {},
+  removeSpy = () => {},
+  pending = false,
+  error: string | null = null,
+) {
   TestBed.configureTestingModule({
     imports: [FavouriteButton],
     providers: [
@@ -15,14 +22,27 @@ function configure(saved: boolean, authed: boolean, addSpy = () => {}, removeSpy
       },
       {
         provide: FavouriteService,
-        useValue: { isFavourite: () => saved, add: addSpy, remove: removeSpy },
+        useValue: {
+          isFavourite: () => saved,
+          isPending: () => pending,
+          mutationError: () => error,
+          add: addSpy,
+          remove: removeSpy,
+        },
       },
     ],
   });
 }
 
-function create(saved: boolean, authed: boolean, addSpy = () => {}, removeSpy = () => {}) {
-  configure(saved, authed, addSpy, removeSpy);
+function create(
+  saved: boolean,
+  authed: boolean,
+  addSpy = () => {},
+  removeSpy = () => {},
+  pending = false,
+  error: string | null = null,
+) {
+  configure(saved, authed, addSpy, removeSpy, pending, error);
   const fixture = TestBed.createComponent(FavouriteButton);
   fixture.componentRef.setInput('kind', 'apod');
   fixture.componentRef.setInput('refId', '2026-06-06');
@@ -59,5 +79,35 @@ describe('FavouriteButton', () => {
     expect(fixture.nativeElement.textContent).toContain('Saved');
     fixture.nativeElement.querySelector('button').click();
     expect(removed).toBe(true);
+  });
+
+  it('disables the button while a save is pending', () => {
+    const fixture = create(
+      false,
+      true,
+      () => {},
+      () => {},
+      true,
+    );
+    const button: HTMLButtonElement = fixture.nativeElement.querySelector('button');
+
+    expect(button.disabled).toBe(true);
+    expect(button.getAttribute('aria-busy')).toBe('true');
+    expect(button.textContent).toContain('Saving');
+  });
+
+  it('announces mutation failures', () => {
+    const fixture = create(
+      false,
+      true,
+      () => {},
+      () => {},
+      false,
+      "We couldn't save this favourite.",
+    );
+
+    expect(fixture.nativeElement.querySelector('[role="alert"]').textContent).toContain(
+      "couldn't save",
+    );
   });
 });

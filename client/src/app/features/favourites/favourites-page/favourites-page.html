@@ -4,7 +4,21 @@
     <p class="favs__sub">Pictures and launches you've saved.</p>
   </header>
 
-  @if (items().length === 0) {
+  @if (loadError(); as error) {
+    <div class="favs__error" role="alert">
+      <span>{{ error }}</span>
+      <button type="button" (click)="retry()" [disabled]="loadStatus() === 'loading'">
+        Try again
+      </button>
+    </div>
+  }
+
+  @if ((loadStatus() === 'idle' || loadStatus() === 'loading') && items().length === 0) {
+    <div class="favs__loading" role="status">
+      <span class="favs__spinner" aria-hidden="true"></span>
+      <span>Loading your favourites…</span>
+    </div>
+  } @else if (loadStatus() === 'loaded' && items().length === 0) {
     <div class="favs__empty">
       <p>Nothing saved yet.</p>
       <p class="favs__empty-hint">
@@ -12,7 +26,7 @@
         <a routerLink="/launches">launch</a> to keep it here.
       </p>
     </div>
-  } @else {
+  } @else if (items().length > 0) {
     <div class="favs__grid">
       @for (fav of items(); track fav.id) {
         <article class="favcard">
@@ -29,7 +43,18 @@
               <span class="favcard__title">{{ title(fav) }}</span>
             </span>
           </a>
-          <button type="button" class="favcard__remove" (click)="remove(fav)">Remove</button>
+          <button
+            type="button"
+            class="favcard__remove"
+            [disabled]="isPending(fav)"
+            [attr.aria-busy]="isPending(fav)"
+            (click)="remove(fav)"
+          >
+            {{ isPending(fav) ? 'Removing…' : 'Remove' }}
+          </button>
+          @if (mutationError(fav); as error) {
+            <p class="favcard__error" role="alert">{{ error }}</p>
+          }
         </article>
       }
     </div>

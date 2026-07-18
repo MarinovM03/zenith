@@ -21,8 +21,15 @@ export class FavouriteButton {
   protected readonly isFavourite = computed(() =>
     this.favourites.isFavourite(this.kind(), this.refId()),
   );
+  protected readonly busy = computed(() => this.favourites.isPending(this.kind(), this.refId()));
+  protected readonly error = computed(() =>
+    this.favourites.mutationError(this.kind(), this.refId()),
+  );
 
   protected toggle(): void {
+    if (this.busy()) {
+      return;
+    }
     if (this.isFavourite()) {
       this.favourites.remove(this.kind(), this.refId());
     } else {

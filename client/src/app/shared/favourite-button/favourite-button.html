@@ -1,12 +1,25 @@
 @if (signedIn()) {
-  <button
-    type="button"
-    class="favbtn"
-    [class.favbtn--on]="isFavourite()"
-    [attr.aria-pressed]="isFavourite()"
-    (click)="toggle()"
-  >
-    <span class="favbtn__star" aria-hidden="true">{{ isFavourite() ? '★' : '☆' }}</span>
-    <span class="favbtn__label">{{ isFavourite() ? 'Saved' : 'Save' }}</span>
-  </button>
+  <span class="favbtn-wrap">
+    <button
+      type="button"
+      class="favbtn"
+      [class.favbtn--on]="isFavourite()"
+      [attr.aria-pressed]="isFavourite()"
+      [attr.aria-busy]="busy()"
+      [disabled]="busy()"
+      (click)="toggle()"
+    >
+      <span class="favbtn__star" aria-hidden="true">{{ isFavourite() ? '★' : '☆' }}</span>
+      <span class="favbtn__label">
+        @if (busy()) {
+          {{ isFavourite() ? 'Removing...' : 'Saving...' }}
+        } @else {
+          {{ isFavourite() ? 'Saved' : 'Save' }}
+        }
+      </span>
+    </button>
+    @if (error(); as message) {
+      <span class="favbtn__error" role="alert">{{ message }}</span>
+    }
+  </span>
 }
