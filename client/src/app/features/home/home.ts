@@ -14,6 +14,7 @@ import { first } from 'rxjs';
 
 import { ImgFade } from '../../shared/img-fade/img-fade';
 import { Skeleton } from '../../shared/skeleton/skeleton';
+import { DashboardCard } from './dashboard-card/dashboard-card';
 import { Apod } from '../apod/apod.model';
 import { ApodService } from '../apod/apod.service';
 import { AsteroidService } from '../asteroids/asteroid.service';
@@ -50,7 +51,7 @@ function shiftIso(iso: string, days: number): string {
   selector: 'app-home',
   templateUrl: './home.html',
   styleUrl: './home.css',
-  imports: [RouterLink, ImgFade, Skeleton, Countdown, DecimalPipe],
+  imports: [RouterLink, ImgFade, Skeleton, Countdown, DashboardCard, DecimalPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Home {

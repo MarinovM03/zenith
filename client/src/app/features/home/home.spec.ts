@@ -177,7 +177,7 @@ describe('Home', () => {
     expect(text).toContain('Asteroid data unavailable');
     expect(text).toContain('Mars data unavailable');
     expect(text).toContain('ISS position unavailable');
-    expect(fixture.nativeElement.querySelectorAll('.home__retry')).toHaveLength(5);
+    expect(fixture.nativeElement.querySelectorAll('.home__retry, .dash__retry')).toHaveLength(5);
   });
 
   it('retries only the failed dashboard resource', async () => {
