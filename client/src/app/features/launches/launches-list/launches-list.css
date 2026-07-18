@@ -49,6 +49,67 @@
   color: var(--color-on-accent);
 }
 
+.launches__tools {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(12rem, 1fr);
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.launches__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.launches__field input,
+.launches__field select {
+  min-height: 2.75rem;
+  width: 100%;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: rgba(15, 22, 34, 0.78);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: var(--space-2) var(--space-3);
+}
+
+.launches__field input:focus-visible,
+.launches__field select:focus-visible {
+  border-color: var(--color-accent);
+  outline: 2px solid var(--color-accent-soft);
+  outline-offset: 2px;
+}
+
+.launches__field input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.launches__results {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: 2rem;
+  margin-bottom: var(--space-3);
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+}
+
+.launches__results button {
+  border: none;
+  background: transparent;
+  color: var(--color-accent);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 .launches__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -174,6 +235,10 @@
   color: var(--color-text-muted);
 }
 
+.launches__state--compact {
+  min-height: 18rem;
+}
+
 .launches__retry {
   background: transparent;
   border: 1px solid var(--color-border-strong);
@@ -194,5 +259,11 @@
   .lcard,
   .tabs__btn {
     transition: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .launches__tools {
+    grid-template-columns: 1fr;
   }
 }

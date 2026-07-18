@@ -1,5 +1,12 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 
@@ -30,7 +37,50 @@ export class LaunchesList {
 
   protected readonly tab = signal<Tab>('upcoming');
   protected readonly state = signal<LoadState>({ status: 'loading' });
+  protected readonly query = signal('');
+  protected readonly provider = signal('');
   protected readonly skeletonSlots = Array.from({ length: 6 }, (_, i) => i);
+
+  protected readonly providers = computed(() => {
+    const current = this.state();
+    if (current.status !== 'ready') {
+      return [];
+    }
+    return [
+      ...new Set(
+        current.launches
+          .map((launch) => launch.provider)
+          .filter((provider): provider is string => Boolean(provider)),
+      ),
+    ].sort((a, b) => a.localeCompare(b));
+  });
+
+  protected readonly filteredLaunches = computed(() => {
+    const current = this.state();
+    if (current.status !== 'ready') {
+      return [];
+    }
+    const query = this.query().trim().toLocaleLowerCase();
+    const provider = this.provider();
+    return current.launches.filter((launch) => {
+      const matchesProvider = !provider || launch.provider === provider;
+      const searchable = [
+        launch.name,
+        launch.mission,
+        launch.provider,
+        launch.rocket,
+        launch.location,
+      ]
+        .filter((value): value is string => Boolean(value))
+        .join(' ')
+        .toLocaleLowerCase();
+      return matchesProvider && (!query || searchable.includes(query));
+    });
+  });
+
+  protected readonly hasFilters = computed(
+    () => this.query().trim().length > 0 || this.provider().length > 0,
+  );
 
   constructor() {
     this.load('upcoming');
@@ -39,8 +89,22 @@ export class LaunchesList {
   protected setTab(tab: Tab): void {
     if (tab !== this.tab()) {
       this.tab.set(tab);
+      this.clearFilters();
       this.load(tab);
     }
+  }
+
+  protected onSearch(event: Event): void {
+    this.query.set((event.target as HTMLInputElement).value);
+  }
+
+  protected onProviderChange(event: Event): void {
+    this.provider.set((event.target as HTMLSelectElement).value);
+  }
+
+  protected clearFilters(): void {
+    this.query.set('');
+    this.provider.set('');
   }
 
   protected retry(): void {

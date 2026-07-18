@@ -23,6 +23,15 @@ function launch(id: string, name: string, net: string): Launch {
   };
 }
 
+function setInput(
+  element: HTMLInputElement | HTMLSelectElement,
+  value: string,
+  eventName: 'input' | 'change',
+): void {
+  element.value = value;
+  element.dispatchEvent(new Event(eventName));
+}
+
 const FUTURE = new Date(Date.now() + 86_400_000).toISOString();
 
 function configure(mock: Partial<LaunchService>) {
@@ -72,5 +81,55 @@ describe('LaunchesList', () => {
 
     expect(fixture.nativeElement.textContent).toContain("Couldn't load launches");
     expect(fixture.nativeElement.querySelector('.launches__retry')).not.toBeNull();
+  });
+
+  it('searches launch names, missions, rockets, and locations', async () => {
+    const lunar = launch('a', 'Artemis II', FUTURE);
+    lunar.provider = 'NASA';
+    lunar.mission = 'Crewed lunar flyby';
+    lunar.rocket = 'Space Launch System';
+    const starlink = launch('b', 'Falcon 9 | Starlink', FUTURE);
+    configure({ getUpcoming: () => of([lunar, starlink]) });
+    const fixture = TestBed.createComponent(LaunchesList);
+    await settle(fixture);
+
+    const search: HTMLInputElement = fixture.nativeElement.querySelector('input[type="search"]');
+    setInput(search, 'lunar', 'input');
+    await settle(fixture);
+
+    const cards = fixture.nativeElement.querySelectorAll('.lcard');
+    expect(cards).toHaveLength(1);
+    expect(cards[0].textContent).toContain('Artemis II');
+    expect(fixture.nativeElement.textContent).toContain('Showing 1 of 2 launches');
+  });
+
+  it('filters by provider and clears an empty result', async () => {
+    const nasa = launch('a', 'Artemis II', FUTURE);
+    nasa.provider = 'NASA';
+    nasa.mission = 'Crewed lunar flyby';
+    nasa.rocket = 'Space Launch System';
+    const spacex = launch('b', 'Falcon 9 | Starlink', FUTURE);
+    configure({ getUpcoming: () => of([nasa, spacex]) });
+    const fixture = TestBed.createComponent(LaunchesList);
+    await settle(fixture);
+
+    const provider: HTMLSelectElement = fixture.nativeElement.querySelector('select');
+    setInput(provider, 'NASA', 'change');
+    await settle(fixture);
+    expect(fixture.nativeElement.querySelectorAll('.lcard')).toHaveLength(1);
+
+    const search: HTMLInputElement = fixture.nativeElement.querySelector('input[type="search"]');
+    setInput(search, 'Starlink', 'input');
+    await settle(fixture);
+    expect(fixture.nativeElement.textContent).toContain('No launches match those filters');
+
+    const clear: HTMLButtonElement = fixture.nativeElement.querySelector(
+      '.launches__state--compact button',
+    );
+    clear.click();
+    await settle(fixture);
+    expect(fixture.nativeElement.querySelectorAll('.lcard')).toHaveLength(2);
+    expect(search.value).toBe('');
+    expect(provider.value).toBe('');
   });
 });

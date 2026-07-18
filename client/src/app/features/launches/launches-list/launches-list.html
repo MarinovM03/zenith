@@ -46,43 +46,80 @@
             <p>No launches to show right now.</p>
           </div>
         } @else {
-          <div class="launches__grid">
-            @for (launch of s.launches; track launch.id) {
-              <a class="lcard" [routerLink]="['/launches', launch.id]">
-                <span class="lcard__thumb">
-                  @if (launch.image) {
-                    <img
-                      appImgFade
-                      [src]="launch.image"
-                      [alt]="launch.name"
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  } @else {
-                    <span class="lcard__noimg" aria-hidden="true">🚀</span>
-                  }
-                  <span class="status status--{{ statusModifier(launch.status.abbrev) }}">
-                    {{ launch.status.name }}
-                  </span>
-                </span>
+          <div class="launches__tools">
+            <label class="launches__field launches__field--search">
+              <span>Search launches</span>
+              <input
+                type="search"
+                placeholder="Mission, rocket, or location"
+                [value]="query()"
+                (input)="onSearch($event)"
+              />
+            </label>
+            <label class="launches__field">
+              <span>Provider</span>
+              <select [value]="provider()" (change)="onProviderChange($event)">
+                <option value="">All providers</option>
+                @for (option of providers(); track option) {
+                  <option [value]="option">{{ option }}</option>
+                }
+              </select>
+            </label>
+          </div>
 
-                <span class="lcard__body">
-                  @if (tab() === 'upcoming') {
-                    <app-countdown [target]="launch.net" />
-                  } @else {
-                    <span class="lcard__date">{{ launch.net | date: 'mediumDate' }}</span>
-                  }
-                  <span class="lcard__name">{{ launch.name }}</span>
-                  <span class="lcard__meta">
-                    {{ launch.provider ?? 'Unknown provider' }}
-                    @if (launch.location) {
-                      · {{ launch.location }}
-                    }
-                  </span>
-                </span>
-              </a>
+          <div class="launches__results" aria-live="polite">
+            <span>Showing {{ filteredLaunches().length }} of {{ s.launches.length }} launches</span>
+            @if (hasFilters()) {
+              <button type="button" (click)="clearFilters()">Clear filters</button>
             }
           </div>
+
+          @if (filteredLaunches().length === 0) {
+            <div class="launches__state launches__state--compact">
+              <p>No launches match those filters.</p>
+              <button type="button" class="launches__retry" (click)="clearFilters()">
+                Clear filters
+              </button>
+            </div>
+          } @else {
+            <div class="launches__grid">
+              @for (launch of filteredLaunches(); track launch.id) {
+                <a class="lcard" [routerLink]="['/launches', launch.id]">
+                  <span class="lcard__thumb">
+                    @if (launch.image) {
+                      <img
+                        appImgFade
+                        [src]="launch.image"
+                        [alt]="launch.name"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    } @else {
+                      <span class="lcard__noimg" aria-hidden="true">🚀</span>
+                    }
+                    <span class="status status--{{ statusModifier(launch.status.abbrev) }}">
+                      {{ launch.status.name }}
+                    </span>
+                  </span>
+
+                  <span class="lcard__body">
+                    @if (tab() === 'upcoming') {
+                      <app-countdown [target]="launch.net" />
+                    } @else {
+                      <span class="lcard__date">{{ launch.net | date: 'mediumDate' }}</span>
+                    }
+                    <span class="lcard__name">{{ launch.name }}</span>
+                    <span class="lcard__meta">
+                      {{ launch.provider ?? 'Unknown provider' }}
+                      @if (launch.location) {
+                        · {{ launch.location }}
+                      }
+                    </span>
+                  </span>
+                </a>
+              }
+            </div>
+          }
         }
       }
     }
