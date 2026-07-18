@@ -25,25 +25,59 @@
             <p>No photos available right now.</p>
           </div>
         } @else {
-          <div class="mars__grid">
-            @for (photo of s.photos; track photo.id) {
-              <a class="mphoto" [href]="photo.full_src" target="_blank" rel="noopener">
-                <span class="mphoto__img">
-                  <img
-                    appImgFade
-                    [src]="photo.img_src"
-                    [alt]="photo.camera"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </span>
-                <span class="mphoto__meta">
-                  <span class="mphoto__cam">{{ photo.camera }}</span>
-                  <span class="mphoto__sol">Sol {{ photo.sol }}</span>
-                </span>
-              </a>
-            }
+          <div class="mars__tools">
+            <label class="mars__field">
+              <span>Camera</span>
+              <select [value]="camera()" (change)="onCameraChange($event)">
+                <option value="">All cameras</option>
+                @for (option of cameras(); track option) {
+                  <option [value]="option">{{ cameraLabel(option) }}</option>
+                }
+              </select>
+            </label>
+            <div class="mars__results" aria-live="polite">
+              <span>Showing {{ filteredPhotos().length }} of {{ s.photos.length }} photos</span>
+              @if (camera()) {
+                <button type="button" (click)="clearCamera()">Clear filter</button>
+              }
+            </div>
           </div>
+
+          @if (filteredPhotos().length === 0) {
+            <div class="mars__state mars__state--compact">
+              <p>No photos match that camera.</p>
+              <button type="button" class="mars__retry" (click)="clearCamera()">
+                Clear filter
+              </button>
+            </div>
+          } @else {
+            <div class="mars__grid">
+              @for (photo of filteredPhotos(); track photo.id) {
+                <a class="mphoto" [href]="photo.full_src" target="_blank" rel="noopener">
+                  <span class="mphoto__img">
+                    <img
+                      appImgFade
+                      [src]="photo.img_src"
+                      [alt]="cameraLabel(photo.camera) + ' Mars rover photo'"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </span>
+                  <span class="mphoto__meta">
+                    <span class="mphoto__cam">{{ cameraLabel(photo.camera) }}</span>
+                    <span class="mphoto__time">
+                      <span class="mphoto__sol">Sol {{ photo.sol }}</span>
+                      @if (photo.earth_date) {
+                        <span class="mphoto__date">{{
+                          photo.earth_date | date: 'mediumDate' : 'UTC'
+                        }}</span>
+                      }
+                    </span>
+                  </span>
+                </a>
+              }
+            </div>
+          }
 
           @if (!noMore()) {
             <div class="mars__more">

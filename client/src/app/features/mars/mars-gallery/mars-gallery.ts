@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { AboutPanel } from '../../../shared/about-panel/about-panel';
@@ -16,7 +24,7 @@ type LoadState =
   selector: 'app-mars-gallery',
   templateUrl: './mars-gallery.html',
   styleUrl: './mars-gallery.css',
-  imports: [Skeleton, ImgFade, AboutPanel],
+  imports: [DatePipe, Skeleton, ImgFade, AboutPanel],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MarsGallery {
@@ -27,7 +35,27 @@ export class MarsGallery {
   protected readonly loadingMore = signal(false);
   protected readonly loadMoreError = signal(false);
   protected readonly noMore = signal(false);
+  protected readonly camera = signal('');
   protected readonly skeletonSlots = Array.from({ length: 12 }, (_, i) => i);
+
+  protected readonly cameras = computed(() => {
+    const current = this.state();
+    if (current.status !== 'ready') {
+      return [];
+    }
+    return [...new Set(current.photos.map((photo) => photo.camera))].sort((a, b) =>
+      a.localeCompare(b),
+    );
+  });
+
+  protected readonly filteredPhotos = computed(() => {
+    const current = this.state();
+    if (current.status !== 'ready') {
+      return [];
+    }
+    const camera = this.camera();
+    return camera ? current.photos.filter((photo) => photo.camera === camera) : current.photos;
+  });
 
   private page = 1;
 
@@ -37,6 +65,18 @@ export class MarsGallery {
 
   protected retry(): void {
     this.reload();
+  }
+
+  protected onCameraChange(event: Event): void {
+    this.camera.set((event.target as HTMLSelectElement).value);
+  }
+
+  protected clearCamera(): void {
+    this.camera.set('');
+  }
+
+  protected cameraLabel(camera: string): string {
+    return camera.replaceAll('_', ' ');
   }
 
   protected loadMore(): void {
@@ -66,6 +106,7 @@ export class MarsGallery {
 
   private reload(): void {
     this.page = 1;
+    this.camera.set('');
     this.noMore.set(false);
     this.loadMoreError.set(false);
     this.state.set({ status: 'loading' });

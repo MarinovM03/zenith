@@ -21,6 +21,63 @@
   font-size: 0.9rem;
 }
 
+.mars__tools {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.mars__field {
+  display: flex;
+  flex: 1 1 18rem;
+  max-width: 24rem;
+  flex-direction: column;
+  gap: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.mars__field select {
+  min-height: 2.75rem;
+  width: 100%;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: rgba(15, 22, 34, 0.78);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: var(--space-2) var(--space-3);
+}
+
+.mars__field select:focus-visible {
+  border-color: var(--color-accent);
+  outline: 2px solid var(--color-accent-soft);
+  outline-offset: 2px;
+}
+
+.mars__results {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  min-height: 2.75rem;
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+}
+
+.mars__results button {
+  border: none;
+  background: transparent;
+  color: var(--color-accent);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 .mars__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -74,11 +131,28 @@
 }
 
 .mphoto__cam {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: var(--color-accent);
+}
+
+.mphoto__time {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.25;
 }
 
 .mphoto__sol {
   color: var(--color-text-muted);
+}
+
+.mphoto__date {
+  color: var(--color-text);
+  font-size: 0.66rem;
 }
 
 .mars__state {
@@ -89,6 +163,10 @@
   gap: var(--space-4);
   min-height: 30vh;
   color: var(--color-text-muted);
+}
+
+.mars__state--compact {
+  min-height: 18rem;
 }
 
 .mars__more {
@@ -134,5 +212,22 @@
 @media (prefers-reduced-motion: reduce) {
   .mphoto {
     transition: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .mars__tools {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .mars__field {
+    flex-basis: auto;
+    max-width: none;
+  }
+
+  .mars__results {
+    justify-content: space-between;
+    min-height: 2rem;
   }
 }
