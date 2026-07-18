@@ -13,6 +13,7 @@ import { AboutPanel } from '../../../shared/about-panel/about-panel';
 import { ImgFade } from '../../../shared/img-fade/img-fade';
 import { Skeleton } from '../../../shared/skeleton/skeleton';
 import { MarsPhoto } from '../mars.model';
+import { MarsPhotoViewer } from '../mars-photo-viewer/mars-photo-viewer';
 import { MarsService } from '../mars.service';
 
 type LoadState =
@@ -24,7 +25,7 @@ type LoadState =
   selector: 'app-mars-gallery',
   templateUrl: './mars-gallery.html',
   styleUrl: './mars-gallery.css',
-  imports: [DatePipe, Skeleton, ImgFade, AboutPanel],
+  imports: [DatePipe, Skeleton, ImgFade, AboutPanel, MarsPhotoViewer],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MarsGallery {
@@ -36,6 +37,7 @@ export class MarsGallery {
   protected readonly loadMoreError = signal(false);
   protected readonly noMore = signal(false);
   protected readonly camera = signal('');
+  protected readonly selectedPhoto = signal<MarsPhoto | null>(null);
   protected readonly skeletonSlots = Array.from({ length: 12 }, (_, i) => i);
 
   protected readonly cameras = computed(() => {
@@ -57,6 +59,17 @@ export class MarsGallery {
     return camera ? current.photos.filter((photo) => photo.camera === camera) : current.photos;
   });
 
+  protected readonly selectedIndex = computed(() => {
+    const selected = this.selectedPhoto();
+    return selected ? this.filteredPhotos().findIndex((photo) => photo.id === selected.id) : -1;
+  });
+
+  protected readonly hasPreviousPhoto = computed(() => this.selectedIndex() > 0);
+  protected readonly hasNextPhoto = computed(() => {
+    const index = this.selectedIndex();
+    return index >= 0 && index < this.filteredPhotos().length - 1;
+  });
+
   private page = 1;
 
   constructor() {
@@ -68,11 +81,36 @@ export class MarsGallery {
   }
 
   protected onCameraChange(event: Event): void {
+    this.closePhoto();
     this.camera.set((event.target as HTMLSelectElement).value);
   }
 
   protected clearCamera(): void {
+    this.closePhoto();
     this.camera.set('');
+  }
+
+  protected openPhoto(photo: MarsPhoto): void {
+    this.selectedPhoto.set(photo);
+  }
+
+  protected closePhoto(): void {
+    this.selectedPhoto.set(null);
+  }
+
+  protected showPreviousPhoto(): void {
+    const index = this.selectedIndex();
+    if (index > 0) {
+      this.selectedPhoto.set(this.filteredPhotos()[index - 1]);
+    }
+  }
+
+  protected showNextPhoto(): void {
+    const index = this.selectedIndex();
+    const photos = this.filteredPhotos();
+    if (index >= 0 && index < photos.length - 1) {
+      this.selectedPhoto.set(photos[index + 1]);
+    }
   }
 
   protected cameraLabel(camera: string): string {
@@ -106,6 +144,7 @@ export class MarsGallery {
 
   private reload(): void {
     this.page = 1;
+    this.closePhoto();
     this.camera.set('');
     this.noMore.set(false);
     this.loadMoreError.set(false);

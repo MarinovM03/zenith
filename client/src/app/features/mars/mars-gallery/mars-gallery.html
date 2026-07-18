@@ -53,13 +53,21 @@
           } @else {
             <div class="mars__grid">
               @for (photo of filteredPhotos(); track photo.id) {
-                <a class="mphoto" [href]="photo.full_src" target="_blank" rel="noopener">
+                <button
+                  type="button"
+                  class="mphoto"
+                  (click)="openPhoto(photo)"
+                  [attr.aria-label]="
+                    'View ' + cameraLabel(photo.camera) + ' photo from sol ' + photo.sol
+                  "
+                >
                   <span class="mphoto__img">
                     <img
                       appImgFade
                       [src]="photo.img_src"
                       [alt]="cameraLabel(photo.camera) + ' Mars rover photo'"
-                      loading="lazy"
+                      [attr.loading]="$first ? 'eager' : 'lazy'"
+                      [attr.fetchpriority]="$first ? 'high' : null"
                       decoding="async"
                     />
                   </span>
@@ -74,7 +82,7 @@
                       }
                     </span>
                   </span>
-                </a>
+                </button>
               }
             </div>
           }
@@ -109,4 +117,17 @@
       These are raw, unprocessed frames straight from the rover's cameras — often only hours old.
     </p>
   </app-about-panel>
+
+  @if (selectedPhoto(); as photo) {
+    <app-mars-photo-viewer
+      [photo]="photo"
+      [position]="selectedIndex() + 1"
+      [total]="filteredPhotos().length"
+      [hasPrevious]="hasPreviousPhoto()"
+      [hasNext]="hasNextPhoto()"
+      (closed)="closePhoto()"
+      (previous)="showPreviousPhoto()"
+      (next)="showNextPhoto()"
+    />
+  }
 </main>

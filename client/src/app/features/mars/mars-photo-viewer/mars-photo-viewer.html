@@ -1,0 +1,69 @@
+<dialog
+  #dialog
+  class="viewer"
+  aria-labelledby="mars-viewer-title"
+  (cancel)="onCancel($event)"
+  (click)="onBackdropClick($event)"
+  (keydown.escape)="onCancel($event)"
+  (keydown.arrowleft)="onPrevious($event)"
+  (keydown.arrowright)="onNext($event)"
+>
+  <article class="viewer__panel">
+    <button
+      type="button"
+      class="viewer__close"
+      aria-label="Close photo viewer"
+      (click)="closeViewer()"
+    >
+      <span aria-hidden="true">&times;</span>
+    </button>
+
+    <div class="viewer__image-wrap">
+      <img
+        class="viewer__image"
+        [src]="photo().full_src"
+        [alt]="cameraLabel(photo().camera) + ' Mars rover photo'"
+        decoding="async"
+      />
+
+      <button
+        type="button"
+        class="viewer__nav viewer__nav--previous"
+        aria-label="Previous photo"
+        [disabled]="!hasPrevious()"
+        (click)="onPrevious($event)"
+      >
+        <span aria-hidden="true">&#8249;</span>
+      </button>
+      <button
+        type="button"
+        class="viewer__nav viewer__nav--next"
+        aria-label="Next photo"
+        [disabled]="!hasNext()"
+        (click)="onNext($event)"
+      >
+        <span aria-hidden="true">&#8250;</span>
+      </button>
+    </div>
+
+    <footer class="viewer__footer">
+      <div>
+        <h2 id="mars-viewer-title" class="viewer__title">
+          {{ cameraLabel(photo().camera) }}
+        </h2>
+        <p class="viewer__meta">
+          Sol {{ photo().sol }}
+          @if (photo().earth_date) {
+            <span aria-hidden="true">&middot;</span>
+            {{ photo().earth_date | date: 'mediumDate' : 'UTC' }}
+          }
+        </p>
+      </div>
+
+      <div class="viewer__actions">
+        <span class="viewer__count">{{ position() }} of {{ total() }}</span>
+        <a [href]="photo().full_src" target="_blank" rel="noopener">Open original</a>
+      </div>
+    </footer>
+  </article>
+</dialog>

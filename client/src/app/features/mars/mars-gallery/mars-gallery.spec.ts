@@ -38,6 +38,11 @@ describe('MarsGallery', () => {
 
     expect(fixture.nativeElement.querySelectorAll('.mphoto').length).toBe(2);
     expect(fixture.nativeElement.querySelector('.mphoto__date').textContent).toContain('2026');
+    const images: NodeListOf<HTMLImageElement> =
+      fixture.nativeElement.querySelectorAll('.mphoto img');
+    expect(images[0].getAttribute('loading')).toBe('eager');
+    expect(images[0].getAttribute('fetchpriority')).toBe('high');
+    expect(images[1].getAttribute('loading')).toBe('lazy');
   });
 
   it('filters loaded photos by camera and clears the filter', async () => {
@@ -69,6 +74,32 @@ describe('MarsGallery', () => {
     await settle(fixture);
     expect(fixture.nativeElement.querySelectorAll('.mphoto')).toHaveLength(2);
     expect(select.value).toBe('');
+  });
+
+  it('opens a photo in the viewer and navigates between loaded photos', async () => {
+    configure({ getPhotos: () => of([photo('a'), photo('b', 'MASTCAM_Z')]) });
+    const fixture = TestBed.createComponent(MarsGallery);
+    await settle(fixture);
+
+    const cards: NodeListOf<HTMLButtonElement> = fixture.nativeElement.querySelectorAll('.mphoto');
+    cards[0].click();
+    await settle(fixture);
+
+    let viewer: HTMLElement = fixture.nativeElement.querySelector('app-mars-photo-viewer');
+    expect(viewer).not.toBeNull();
+    expect(viewer.textContent).toContain('1 of 2');
+
+    const next: HTMLButtonElement = viewer.querySelector('[aria-label="Next photo"]')!;
+    next.click();
+    await settle(fixture);
+
+    viewer = fixture.nativeElement.querySelector('app-mars-photo-viewer');
+    expect(viewer.textContent).toContain('MASTCAM Z');
+
+    const close: HTMLButtonElement = viewer.querySelector('[aria-label="Close photo viewer"]')!;
+    close.click();
+    await settle(fixture);
+    expect(fixture.nativeElement.querySelector('app-mars-photo-viewer')).toBeNull();
   });
 
   it('shows an empty state when there are no photos', async () => {
