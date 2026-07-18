@@ -1,6 +1,6 @@
 import os
 
-os.environ.setdefault("JWT_SECRET", "test-secret")
+os.environ.setdefault("JWT_SECRET", "test-secret-that-is-at-least-32-characters")
 
 from collections.abc import AsyncIterator  # noqa: E402
 

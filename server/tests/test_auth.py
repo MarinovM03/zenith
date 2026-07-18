@@ -1,9 +1,9 @@
 from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
+import jwt
 import pytest
 from httpx import AsyncClient
-from jose import jwt
 
 from app.core.config import get_settings
 
@@ -141,6 +141,21 @@ class TestMe:
             algorithm=settings.jwt_algorithm,
         )
         response = await client.get("/auth/me", headers={"Authorization": f"Bearer {expired}"})
+        assert response.status_code == 401
+
+    @pytest.mark.asyncio
+    async def test_token_without_expiration_returns_401(self, client: AsyncClient) -> None:
+        settings = get_settings()
+        token = jwt.encode(
+            {
+                "sub": str(uuid4()),
+                "type": "access",
+                "iat": int(datetime.now(UTC).timestamp()),
+            },
+            settings.jwt_secret,
+            algorithm=settings.jwt_algorithm,
+        )
+        response = await client.get("/auth/me", headers={"Authorization": f"Bearer {token}"})
         assert response.status_code == 401
 
 
