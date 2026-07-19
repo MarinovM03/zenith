@@ -84,39 +84,46 @@
           } @else {
             <div class="launches__grid">
               @for (launch of filteredLaunches(); track launch.id) {
-                <a class="lcard" [routerLink]="['/launches', launch.id]">
-                  <span class="lcard__thumb">
-                    @if (launch.image) {
-                      <img
-                        appImgFade
-                        [src]="launch.image"
-                        [alt]="launch.name"
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    } @else {
-                      <span class="lcard__noimg" aria-hidden="true">🚀</span>
-                    }
-                    <span class="status status--{{ statusModifier(launch.status.abbrev) }}">
-                      {{ launch.status.name }}
-                    </span>
-                  </span>
-
-                  <span class="lcard__body">
-                    @if (tab() === 'upcoming') {
-                      <app-countdown [target]="launch.net" />
-                    } @else {
-                      <span class="lcard__date">{{ launch.net | date: 'mediumDate' }}</span>
-                    }
-                    <span class="lcard__name">{{ launch.name }}</span>
-                    <span class="lcard__meta">
-                      {{ launch.provider ?? 'Unknown provider' }}
-                      @if (launch.location) {
-                        · {{ launch.location }}
+                <article class="lcard">
+                  <a class="lcard__link" [routerLink]="['/launches', launch.id]">
+                    <span class="lcard__thumb">
+                      @if (launch.image) {
+                        <img
+                          appImgFade
+                          [src]="launch.image"
+                          [alt]="launch.name"
+                          [attr.loading]="$index < 3 ? 'eager' : 'lazy'"
+                          decoding="async"
+                        />
+                      } @else {
+                        <span class="lcard__noimg" aria-hidden="true">🚀</span>
                       }
+                      <span class="status status--{{ statusModifier(launch.status.abbrev) }}">
+                        {{ launch.status.name }}
+                      </span>
                     </span>
-                  </span>
-                </a>
+
+                    <span class="lcard__body">
+                      @if (tab() === 'upcoming') {
+                        <app-countdown [target]="launch.net" />
+                      } @else {
+                        <span class="lcard__date">{{ launch.net | date: 'mediumDate' }}</span>
+                      }
+                      <span class="lcard__name">{{ launch.name }}</span>
+                      <span class="lcard__meta">
+                        {{ launch.provider ?? 'Unknown provider' }}
+                        @if (launch.location) {
+                          · {{ launch.location }}
+                        }
+                      </span>
+                    </span>
+                  </a>
+                  @if (tab() === 'upcoming') {
+                    <footer class="lcard__actions">
+                      <app-follow-launch-button [launchId]="launch.id" />
+                    </footer>
+                  }
+                </article>
               }
             </div>
           }

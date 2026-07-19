@@ -1,7 +1,10 @@
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 
+import { AuthService } from '../../../core/services/auth.service';
+import { FollowedLaunchService } from '../../../core/services/followed-launch.service';
 import { LaunchesList } from './launches-list';
 import { Launch } from '../launch.model';
 import { LaunchService } from '../launch.service';
@@ -34,10 +37,27 @@ function setInput(
 
 const FUTURE = new Date(Date.now() + 86_400_000).toISOString();
 
-function configure(mock: Partial<LaunchService>) {
+function configure(mock: Partial<LaunchService>, authenticated = false) {
   TestBed.configureTestingModule({
     imports: [LaunchesList],
-    providers: [provideRouter([]), { provide: LaunchService, useValue: mock }],
+    providers: [
+      provideRouter([]),
+      { provide: LaunchService, useValue: mock },
+      {
+        provide: AuthService,
+        useValue: { isAuthenticated: signal(authenticated).asReadonly() },
+      },
+      {
+        provide: FollowedLaunchService,
+        useValue: {
+          isFollowing: () => false,
+          isPending: () => false,
+          mutationError: () => null,
+          follow: () => {},
+          unfollow: () => {},
+        },
+      },
+    ],
   });
 }
 
@@ -59,6 +79,24 @@ describe('LaunchesList', () => {
     expect(fixture.nativeElement.textContent).toContain('Falcon 9 | Upcoming');
   });
 
+  it('keeps the upcoming follow action outside the card link', async () => {
+    configure(
+      {
+        getUpcoming: () => of([launch('a', 'Falcon 9 | Upcoming', FUTURE)]),
+        getPrevious: () => of([]),
+      },
+      true,
+    );
+    const fixture = TestBed.createComponent(LaunchesList);
+    await settle(fixture);
+
+    const card: HTMLElement = fixture.nativeElement.querySelector('.lcard');
+    expect(card.tagName).toBe('ARTICLE');
+    expect(card.querySelector('.lcard__link')).not.toBeNull();
+    expect(card.querySelector('.lcard__link button')).toBeNull();
+    expect(card.querySelector('.lcard__actions button')?.textContent).toContain('Follow launch');
+  });
+
   it('loads past launches when the Past tab is clicked', async () => {
     configure({
       getUpcoming: () => of([]),
@@ -72,6 +110,7 @@ describe('LaunchesList', () => {
     await settle(fixture);
 
     expect(fixture.nativeElement.textContent).toContain('Atlas V | Past');
+    expect(fixture.nativeElement.querySelector('app-follow-launch-button')).toBeNull();
   });
 
   it('shows an error with retry when loading fails', async () => {

@@ -14,6 +14,7 @@ import { AboutPanel } from '../../../shared/about-panel/about-panel';
 import { ImgFade } from '../../../shared/img-fade/img-fade';
 import { Skeleton } from '../../../shared/skeleton/skeleton';
 import { Countdown } from '../countdown/countdown';
+import { FollowLaunchButton } from '../follow-launch-button/follow-launch-button';
 import { Launch, launchStatusTone } from '../launch.model';
 import { LaunchService } from '../launch.service';
 
@@ -28,7 +29,7 @@ type LoadState =
   selector: 'app-launches-list',
   templateUrl: './launches-list.html',
   styleUrl: './launches-list.css',
-  imports: [RouterLink, DatePipe, Countdown, Skeleton, ImgFade, AboutPanel],
+  imports: [RouterLink, DatePipe, Countdown, Skeleton, ImgFade, AboutPanel, FollowLaunchButton],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LaunchesList {
