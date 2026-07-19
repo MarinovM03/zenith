@@ -82,6 +82,9 @@
               [refId]="s.launch.id"
               [payload]="{ name: s.launch.name, image: s.launch.image }"
             />
+            @if (isFuture(s.launch.net)) {
+              <app-follow-launch-button [launchId]="s.launch.id" />
+            }
             @if (s.launch.webcast_url) {
               <a
                 class="detail__webcast"

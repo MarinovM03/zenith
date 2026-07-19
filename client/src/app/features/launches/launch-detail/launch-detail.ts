@@ -15,6 +15,7 @@ import { FavouriteButton } from '../../../shared/favourite-button/favourite-butt
 import { ImgFade } from '../../../shared/img-fade/img-fade';
 import { Skeleton } from '../../../shared/skeleton/skeleton';
 import { Countdown } from '../countdown/countdown';
+import { FollowLaunchButton } from '../follow-launch-button/follow-launch-button';
 import { Launch, launchStatusTone } from '../launch.model';
 import { LaunchService } from '../launch.service';
 
@@ -24,7 +25,15 @@ type LoadState = { status: 'loading' } | { status: 'ready'; launch: Launch } | {
   selector: 'app-launch-detail',
   templateUrl: './launch-detail.html',
   styleUrl: './launch-detail.css',
-  imports: [RouterLink, DatePipe, Countdown, Skeleton, ImgFade, FavouriteButton],
+  imports: [
+    RouterLink,
+    DatePipe,
+    Countdown,
+    Skeleton,
+    ImgFade,
+    FavouriteButton,
+    FollowLaunchButton,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LaunchDetail {

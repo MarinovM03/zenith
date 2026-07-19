@@ -1,0 +1,25 @@
+@if (signedIn()) {
+  <span class="followbtn-wrap">
+    <button
+      type="button"
+      class="followbtn"
+      [class.followbtn--on]="following()"
+      [attr.aria-pressed]="following()"
+      [attr.aria-busy]="busy()"
+      [disabled]="busy()"
+      (click)="toggle()"
+    >
+      <span class="followbtn__icon" aria-hidden="true">{{ following() ? '✓' : '+' }}</span>
+      <span>
+        @if (busy()) {
+          {{ following() ? 'Unfollowing…' : 'Following…' }}
+        } @else {
+          {{ following() ? 'Following' : 'Follow launch' }}
+        }
+      </span>
+    </button>
+    @if (error(); as message) {
+      <span class="followbtn__error" role="alert">{{ message }}</span>
+    }
+  </span>
+}

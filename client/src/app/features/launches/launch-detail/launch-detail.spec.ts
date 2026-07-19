@@ -12,7 +12,7 @@ const LAUNCH: Launch = {
   id: 'abc',
   name: 'Falcon 9 | Detail Mission',
   status: { name: 'Go for Launch', abbrev: 'Go' },
-  net: '2026-07-01T12:00:00Z',
+  net: new Date(Date.now() + 86_400_000).toISOString(),
   provider: 'SpaceX',
   rocket: 'Falcon 9',
   mission: 'Starlink Group 12',
@@ -52,6 +52,7 @@ describe('LaunchDetail', () => {
     expect(text).toContain('Falcon 9 | Detail Mission');
     expect(text).toContain('Starlink Group 12');
     expect(text).toContain('SpaceX');
+    expect(fixture.nativeElement.querySelector('app-follow-launch-button')).not.toBeNull();
   });
 
   it('shows an error state when loading fails', async () => {
