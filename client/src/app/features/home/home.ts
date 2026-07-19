@@ -1,8 +1,9 @@
-import { DecimalPipe, isPlatformBrowser } from '@angular/common';
+import { DatePipe, DecimalPipe, isPlatformBrowser } from '@angular/common';
 import {
   ApplicationRef,
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
   inject,
   PLATFORM_ID,
@@ -12,6 +13,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { first } from 'rxjs';
 
+import { AuthService } from '../../core/services/auth.service';
+import { FollowedLaunch, FollowedLaunchService } from '../../core/services/followed-launch.service';
 import { ImgFade } from '../../shared/img-fade/img-fade';
 import { Skeleton } from '../../shared/skeleton/skeleton';
 import { DashboardCard } from './dashboard-card/dashboard-card';
@@ -51,7 +54,7 @@ function shiftIso(iso: string, days: number): string {
   selector: 'app-home',
   templateUrl: './home.html',
   styleUrl: './home.css',
-  imports: [RouterLink, ImgFade, Skeleton, Countdown, DashboardCard, DecimalPipe],
+  imports: [RouterLink, ImgFade, Skeleton, Countdown, DashboardCard, DatePipe, DecimalPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Home {
@@ -60,6 +63,8 @@ export class Home {
   private readonly asteroidService = inject(AsteroidService);
   private readonly marsService = inject(MarsService);
   private readonly issService = inject(IssService);
+  private readonly auth = inject(AuthService);
+  private readonly followedLaunches = inject(FollowedLaunchService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly hero = signal<LoadState<Apod>>({ status: 'loading' });
@@ -67,6 +72,20 @@ export class Home {
   protected readonly asteroid = signal<LoadState<AsteroidStats>>({ status: 'loading' });
   protected readonly mars = signal<LoadState<MarsPhoto>>({ status: 'loading' });
   protected readonly iss = signal<LoadState<IssPosition>>({ status: 'loading' });
+  protected readonly isAuthenticated = this.auth.isAuthenticated;
+  protected readonly nextFollowedLaunch = computed<LoadState<FollowedLaunch>>(() => {
+    const status = this.followedLaunches.loadStatus();
+    if (status === 'idle' || status === 'loading') {
+      return { status: 'loading' };
+    }
+    if (status === 'error') {
+      return { status: 'error' };
+    }
+
+    const now = Date.now();
+    const launch = this.followedLaunches.items().find((item) => Date.parse(item.net) >= now);
+    return launch ? { status: 'ready', data: launch } : { status: 'empty' };
+  });
 
   constructor() {
     if (isPlatformBrowser(inject(PLATFORM_ID))) {
@@ -106,6 +125,10 @@ export class Home {
           this.launch.set(list[0] ? { status: 'ready', data: list[0] } : { status: 'empty' }),
         error: () => this.launch.set({ status: 'error' }),
       });
+  }
+
+  protected loadFollowedLaunches(): void {
+    this.followedLaunches.load();
   }
 
   protected loadAsteroids(): void {

@@ -180,6 +180,11 @@
   color: var(--color-text-muted);
 }
 
+.dash__time {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
 .dash__haz {
   color: var(--color-danger);
   font-weight: 700;

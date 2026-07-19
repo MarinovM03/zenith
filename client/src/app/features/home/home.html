@@ -44,7 +44,46 @@
   </section>
 
   <section class="dash-grid">
-    @if (launch(); as state) {
+    @if (isAuthenticated()) {
+      @if (nextFollowedLaunch(); as state) {
+        <app-dashboard-card
+          title="Your next launch"
+          [route]="state.status === 'empty' ? '/launches' : '/following'"
+          variant="launch"
+          [error]="state.status === 'error'"
+          (retry)="loadFollowedLaunches()"
+        >
+          @switch (state.status) {
+            @case ('loading') {
+              <span class="dash__body">
+                <app-skeleton width="70%" height="1.9rem" />
+                <app-skeleton width="50%" height="0.9rem" />
+              </span>
+            }
+            @case ('ready') {
+              <span class="dash__body">
+                <span class="dash__value"><app-countdown [target]="state.data.net" /></span>
+                <span class="dash__meta">{{ state.data.name }}</span>
+                <time class="dash__time" [attr.datetime]="state.data.net">
+                  Local time · {{ state.data.net | date: 'medium' }}
+                </time>
+              </span>
+            }
+            @case ('empty') {
+              <span class="dash__body">
+                <span class="dash__value dash__value--muted">Follow your first launch</span>
+                <span class="dash__meta">Build your personal launch schedule</span>
+              </span>
+            }
+            @case ('error') {
+              <span class="dash__body" role="alert">
+                <span class="dash__value dash__value--muted">Your schedule is unavailable</span>
+              </span>
+            }
+          }
+        </app-dashboard-card>
+      }
+    } @else if (launch(); as state) {
       <app-dashboard-card
         title="Launches"
         route="/launches"

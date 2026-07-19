@@ -6,7 +6,7 @@ A space-exploration discovery app — a live home dashboard, NASA's Astronomy Pi
 
 ## Features
 
-- **Home dashboard** — the Picture of the Day as a hero, plus live cards for the next launch countdown, the 7-day asteroid summary, and the latest Mars photo.
+- **Home dashboard** — the Picture of the Day as a hero, personalized followed-launch scheduling for signed-in users, and live launch, asteroid, Mars, and ISS cards.
 - **Picture of the Day** — today's APOD with a browsable date archive.
 - **Launches** — upcoming and past launches (Launch Library 2) with live countdowns and detail pages.
 - **Mars** — latest Perseverance raw images with "load more" paging.

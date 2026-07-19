@@ -1,7 +1,14 @@
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { NEVER, of, throwError } from 'rxjs';
 
+import { AuthService } from '../../core/services/auth.service';
+import {
+  FollowedLaunch,
+  FollowedLaunchLoadStatus,
+  FollowedLaunchService,
+} from '../../core/services/followed-launch.service';
 import { Home } from './home';
 import { Apod } from '../apod/apod.model';
 import { ApodService } from '../apod/apod.service';
@@ -38,6 +45,19 @@ const LAUNCH: Launch = {
   location: null,
   image: null,
   webcast_url: null,
+};
+
+const FOLLOWED: FollowedLaunch = {
+  id: 'followed-1',
+  launch_id: 'artemis-2',
+  name: 'Artemis II',
+  net: new Date(Date.now() + 172_800_000).toISOString(),
+  status_name: 'To Be Confirmed',
+  status_abbrev: 'TBC',
+  provider: 'NASA',
+  image: null,
+  created_at: '2026-07-19T12:00:00Z',
+  updated_at: '2026-07-19T12:00:00Z',
 };
 
 function asteroid(hazardous: boolean): Asteroid {
@@ -79,9 +99,14 @@ interface ServiceOverrides {
   asteroids?: Partial<AsteroidService>;
   mars?: Partial<MarsService>;
   iss?: Partial<IssService>;
+  authenticated?: boolean;
+  followedItems?: FollowedLaunch[];
+  followedStatus?: FollowedLaunchLoadStatus;
+  loadFollowed?: () => void;
 }
 
 function configure(overrides: ServiceOverrides = {}) {
+  const loadFollowed = overrides.loadFollowed ?? vi.fn();
   TestBed.configureTestingModule({
     imports: [Home],
     providers: [
@@ -109,8 +134,21 @@ function configure(overrides: ServiceOverrides = {}) {
         provide: IssService,
         useValue: { getPosition: () => of(ISS), ...overrides.iss },
       },
+      {
+        provide: AuthService,
+        useValue: { isAuthenticated: signal(overrides.authenticated ?? false).asReadonly() },
+      },
+      {
+        provide: FollowedLaunchService,
+        useValue: {
+          items: signal(overrides.followedItems ?? []).asReadonly(),
+          loadStatus: signal(overrides.followedStatus ?? 'loaded').asReadonly(),
+          load: loadFollowed,
+        },
+      },
     ],
   });
+  return { loadFollowed };
 }
 
 async function settle(fixture: ReturnType<typeof TestBed.createComponent>) {
@@ -141,6 +179,44 @@ describe('Home', () => {
 
     const haz = fixture.nativeElement.querySelector('.dash__haz');
     expect(haz?.textContent?.trim()).toBe('1 hazardous');
+  });
+
+  it('shows the next followed launch for an authenticated user', async () => {
+    configure({ authenticated: true, followedItems: [FOLLOWED] });
+    const fixture = TestBed.createComponent(Home);
+    await settle(fixture);
+
+    const text = fixture.nativeElement.textContent ?? '';
+    const schedule: HTMLTimeElement | null = fixture.nativeElement.querySelector('.dash__time');
+    expect(text).toContain('Your next launch');
+    expect(text).toContain('Artemis II');
+    expect(text).toContain('Local time');
+    expect(text).not.toContain('Falcon 9 | Starlink');
+    expect(schedule?.dateTime).toBe(FOLLOWED.net);
+  });
+
+  it('helps an authenticated user start a launch schedule', async () => {
+    configure({ authenticated: true });
+    const fixture = TestBed.createComponent(Home);
+    await settle(fixture);
+
+    const card: HTMLAnchorElement | null = fixture.nativeElement.querySelector('.dash--launch');
+    expect(fixture.nativeElement.textContent).toContain('Follow your first launch');
+    expect(card?.getAttribute('href')).toBe('/launches');
+  });
+
+  it('retries a failed followed-launch schedule', async () => {
+    const loadFollowed = vi.fn();
+    configure({ authenticated: true, followedStatus: 'error', loadFollowed });
+    const fixture = TestBed.createComponent(Home);
+    await settle(fixture);
+
+    const retry: HTMLButtonElement = fixture.nativeElement.querySelector(
+      '.dash--launch + .dash__retry',
+    );
+    retry.click();
+
+    expect(loadFollowed).toHaveBeenCalledOnce();
   });
 
   it('distinguishes empty results from failed requests', async () => {
