@@ -12,7 +12,7 @@ A space-exploration discovery app — a live home dashboard, NASA's Astronomy Pi
 - **Mars** — latest Perseverance raw images with "load more" paging.
 - **Asteroids** — near-Earth objects for the next 7 days, hazardous ones flagged.
 - **ISS** — live position, altitude, speed, and orbital day/night state.
-- **Following** — follow upcoming launches and review their schedules in your local time.
+- **Following** — follow upcoming launches, review local-time schedules, and export calendar events.
 - **Favourites** — save items behind JWT auth (access token + HTTP-only refresh cookie).
 
 ---

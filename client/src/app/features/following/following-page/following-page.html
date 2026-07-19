@@ -54,6 +54,9 @@
           </a>
 
           <footer class="followcard__actions">
+            <button type="button" class="followcard__calendar" (click)="exportCalendar(launch)">
+              Add to calendar
+            </button>
             <app-follow-launch-button [launchId]="launch.launch_id" />
           </footer>
         </article>

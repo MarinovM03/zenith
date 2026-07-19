@@ -8,6 +8,7 @@ import {
   FollowedLaunchLoadStatus,
   FollowedLaunchService,
 } from '../../../core/services/followed-launch.service';
+import { CalendarExportService } from '../calendar-export.service';
 import { FollowingPage } from './following-page';
 
 const FOLLOWED: FollowedLaunch = {
@@ -30,6 +31,7 @@ function configure(options: {
 }) {
   const load = vi.fn();
   const unfollow = vi.fn();
+  const exportLaunch = vi.fn();
   TestBed.configureTestingModule({
     imports: [FollowingPage],
     providers: [
@@ -52,9 +54,10 @@ function configure(options: {
           mutationError: () => null,
         },
       },
+      { provide: CalendarExportService, useValue: { exportLaunch } },
     ],
   });
-  return { load, unfollow };
+  return { load, unfollow, exportLaunch };
 }
 
 describe('FollowingPage', () => {
@@ -77,7 +80,9 @@ describe('FollowingPage', () => {
     expect(card.textContent).toContain('NASA');
     expect(card.querySelector('time')?.getAttribute('datetime')).toBe(FOLLOWED.net);
     expect(card.querySelector('.followcard__main button')).toBeNull();
-    expect(card.querySelector('.followcard__actions button')?.textContent).toContain('Following');
+    expect(card.querySelector('app-follow-launch-button button')?.textContent).toContain(
+      'Following',
+    );
   });
 
   it('shows loading before an empty result is known', () => {
@@ -87,6 +92,15 @@ describe('FollowingPage', () => {
 
     expect(fixture.nativeElement.textContent).toContain('Loading followed launches');
     expect(fixture.nativeElement.textContent).not.toContain("aren't following any launches");
+  });
+
+  it('exports a followed launch to the calendar', () => {
+    const { exportLaunch } = configure({ items: [FOLLOWED] });
+    const fixture = TestBed.createComponent(FollowingPage);
+    fixture.detectChanges();
+
+    fixture.nativeElement.querySelector('.followcard__calendar').click();
+    expect(exportLaunch).toHaveBeenCalledWith(FOLLOWED);
   });
 
   it('shows a load error and retries', () => {

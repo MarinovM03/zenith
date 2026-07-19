@@ -192,7 +192,29 @@
 .followcard__actions {
   display: flex;
   align-items: flex-start;
+  flex-wrap: wrap;
+  gap: var(--space-2);
   padding: var(--space-3) var(--space-2) var(--space-2);
+}
+
+.followcard__calendar {
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: var(--space-2) var(--space-4);
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    color 0.18s ease;
+}
+
+.followcard__calendar:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
 }
 
 @keyframes following-spin {
