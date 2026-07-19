@@ -70,6 +70,14 @@
           <span class="shell__auth-pending" role="status" aria-label="Checking your session"></span>
         } @else if (isAuthenticated()) {
           <a
+            class="nav__link"
+            routerLink="/following"
+            routerLinkActive="nav__link--active"
+            (click)="closeMenu()"
+          >
+            Following
+          </a>
+          <a
             class="nav__link nav__link--fav"
             routerLink="/favourites"
             routerLinkActive="nav__link--active"

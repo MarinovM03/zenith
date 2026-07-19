@@ -1,0 +1,219 @@
+.following {
+  display: block;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-4) var(--space-10);
+}
+
+.following__head {
+  margin-bottom: var(--space-6);
+}
+
+.following__title {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+
+.following__sub {
+  margin: var(--space-1) 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.following__error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid color-mix(in srgb, var(--color-danger) 55%, transparent);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-danger) 10%, transparent);
+  font-size: 0.9rem;
+}
+
+.following__error button {
+  flex: 0 0 auto;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 700;
+  padding: var(--space-2) var(--space-3);
+  cursor: pointer;
+}
+
+.following__error button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.following__loading,
+.following__empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 35vh;
+  color: var(--color-text-muted);
+}
+
+.following__loading {
+  gap: var(--space-3);
+}
+
+.following__spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid var(--color-border-strong);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: following-spin 0.8s linear infinite;
+}
+
+.following__empty {
+  flex-direction: column;
+  gap: var(--space-2);
+  text-align: center;
+}
+
+.following__empty a {
+  color: var(--color-accent);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.following__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-4);
+}
+
+.followcard {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: var(--space-2);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, rgba(24, 34, 47, 0.55), rgba(15, 22, 34, 0.55));
+  box-shadow: var(--shadow-card);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.followcard:hover,
+.followcard:focus-within {
+  transform: translateY(-3px);
+  border-color: rgba(166, 76, 232, 0.25);
+  box-shadow: var(--shadow-pop), var(--shadow-glow);
+}
+
+.followcard__main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-3);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.followcard__main:focus-visible {
+  border-radius: var(--radius-md);
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.followcard__thumb {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: #000;
+}
+
+.followcard__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.followcard__noimg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 2rem;
+}
+
+.followcard__status {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+  padding: 2px var(--space-2);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  background: rgba(0, 0, 0, 0.65);
+  color: var(--color-text-muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+  backdrop-filter: blur(4px);
+}
+
+.followcard__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: 0 var(--space-2);
+}
+
+.followcard__name {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.followcard__provider,
+.followcard__time {
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+}
+
+.followcard__time {
+  margin-top: var(--space-1);
+}
+
+.followcard__actions {
+  display: flex;
+  align-items: flex-start;
+  padding: var(--space-3) var(--space-2) var(--space-2);
+}
+
+@keyframes following-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .following__spinner {
+    animation: none;
+  }
+
+  .followcard {
+    transition: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .following__error {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}

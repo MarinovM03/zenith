@@ -6,6 +6,7 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'launches/:id', renderMode: RenderMode.Client },
   { path: 'login', renderMode: RenderMode.Client },
   { path: 'register', renderMode: RenderMode.Client },
+  { path: 'following', renderMode: RenderMode.Client },
   { path: 'favourites', renderMode: RenderMode.Client },
   { path: '**', renderMode: RenderMode.Prerender },
 ];

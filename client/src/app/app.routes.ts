@@ -81,6 +81,15 @@ export const routes: Routes = [
     },
   },
   {
+    path: 'following',
+    pathMatch: 'full',
+    title: 'Following',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/following/following-page/following-page').then((m) => m.FollowingPage),
+    data: { description: 'Your followed rocket launches and their upcoming schedules.' },
+  },
+  {
     path: 'favourites',
     pathMatch: 'full',
     title: 'Favourites',
@@ -101,7 +110,7 @@ export const routes: Routes = [
     title: 'Sign up',
     canActivate: [guestGuard],
     loadComponent: () => import('./features/auth/register/register').then((m) => m.Register),
-    data: { description: 'Create a Zenith account to save your favourites.' },
+    data: { description: 'Create a Zenith account to save favourites and follow launches.' },
   },
   {
     path: '**',

@@ -60,6 +60,8 @@ describe('App shell', () => {
     fixture.detectChanges();
     const text = fixture.nativeElement.textContent;
     expect(text).toContain('martin@example.com');
+    expect(text).toContain('Following');
+    expect(text).toContain('Favourites');
     expect(text).toContain('Log out');
   });
 });

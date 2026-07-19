@@ -208,7 +208,7 @@
   border-color: var(--color-accent-strong);
 }
 
-@media (max-width: 640px) {
+@media (max-width: 900px) {
   .shell__inner {
     gap: var(--space-3);
     padding: var(--space-3) var(--space-4);

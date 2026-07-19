@@ -1,0 +1,63 @@
+<main class="following">
+  <header class="following__head">
+    <h1 class="following__title">Following</h1>
+    <p class="following__sub">Your upcoming launch watchlist, shown in your local time.</p>
+  </header>
+
+  @if (loadError(); as error) {
+    <div class="following__error" role="alert">
+      <span>{{ error }}</span>
+      <button type="button" (click)="retry()" [disabled]="loadStatus() === 'loading'">
+        Try again
+      </button>
+    </div>
+  }
+
+  @if ((loadStatus() === 'idle' || loadStatus() === 'loading') && items().length === 0) {
+    <div class="following__loading" role="status">
+      <span class="following__spinner" aria-hidden="true"></span>
+      <span>Loading followed launches…</span>
+    </div>
+  } @else if (loadStatus() === 'loaded' && items().length === 0) {
+    <div class="following__empty">
+      <p>You aren't following any launches yet.</p>
+      <a routerLink="/launches">Browse upcoming launches</a>
+    </div>
+  } @else if (items().length > 0) {
+    <div class="following__grid">
+      @for (launch of items(); track launch.launch_id) {
+        <article class="followcard">
+          <a class="followcard__main" [routerLink]="['/launches', launch.launch_id]">
+            <span class="followcard__thumb">
+              @if (launch.image) {
+                <img
+                  appImgFade
+                  [src]="launch.image"
+                  [alt]="launch.name"
+                  [attr.loading]="$index < 3 ? 'eager' : 'lazy'"
+                  decoding="async"
+                />
+              } @else {
+                <span class="followcard__noimg" aria-hidden="true">🚀</span>
+              }
+              <span class="followcard__status">{{ launch.status_name }}</span>
+            </span>
+
+            <span class="followcard__body">
+              <app-countdown [target]="launch.net" />
+              <span class="followcard__name">{{ launch.name }}</span>
+              <span class="followcard__provider">{{ launch.provider ?? 'Unknown provider' }}</span>
+              <time class="followcard__time" [attr.datetime]="launch.net">
+                {{ launch.net | date: 'medium' }}
+              </time>
+            </span>
+          </a>
+
+          <footer class="followcard__actions">
+            <app-follow-launch-button [launchId]="launch.launch_id" />
+          </footer>
+        </article>
+      }
+    </div>
+  }
+</main>

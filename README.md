@@ -1,8 +1,6 @@
 # Zenith
 
-A space-exploration discovery app — a live home dashboard, NASA's Astronomy Picture of the Day, rocket launches with live countdowns, Mars rover photography, and near-Earth asteroids. Signed-in users can save favourites for a personalised view. Built with Angular 21, FastAPI, PostgreSQL, and Redis on a dark violet theme, and installable as a PWA.
-
-> Pivoted from an earlier football project; the git history shows that evolution. The current product is Zenith.
+A space-exploration discovery app — a live home dashboard, NASA's Astronomy Picture of the Day, rocket launches with live countdowns, Mars rover photography, near-Earth asteroids, and live ISS tracking. Signed-in users can save favourites and follow upcoming launches. Built with Angular 21, FastAPI, PostgreSQL, and Redis on a dark violet theme.
 
 ---
 
@@ -13,8 +11,9 @@ A space-exploration discovery app — a live home dashboard, NASA's Astronomy Pi
 - **Launches** — upcoming and past launches (Launch Library 2) with live countdowns and detail pages.
 - **Mars** — latest Perseverance raw images with "load more" paging.
 - **Asteroids** — near-Earth objects for the next 7 days, hazardous ones flagged.
+- **ISS** — live position, altitude, speed, and orbital day/night state.
+- **Following** — follow upcoming launches and review their schedules in your local time.
 - **Favourites** — save items behind JWT auth (access token + HTTP-only refresh cookie).
-- **PWA** — installable with an offline shell (in progress).
 
 ---
 
@@ -127,8 +126,8 @@ npx prettier --check "src/**/*.{ts,html,css}"
 
 ```
 client/                 Angular 21 (standalone components, signals, OnPush)
-  src/app/features/     apod, launches, mars, asteroids, home, favourites, auth
-  src/app/core/         services (auth, http, toasts, favourite), guards, interceptors
+  src/app/features/     apod, launches, mars, asteroids, iss, home, following, favourites, auth
+  src/app/core/         services (auth, HTTP data, favourites, followed launches), guards, interceptors
   src/app/shared/       cosmic-background, countdown, skeleton, img-fade, favourite-button
   src/styles.css        global design tokens (colours, spacing, radius, shadows)
 server/                 FastAPI (Python 3.12, async)
@@ -150,7 +149,7 @@ docker-compose.yml      Postgres + Redis (local deps only)
 - **Mars data:** comes from `mars.nasa.gov/rss/api` (Perseverance / `mars2020`); the old `mars-photos.herokuapp.com` API is dead.
 - **NASA latency:** NASA hosts have high cold-CDN latency (a cold deep Mars page can take 15–20s). Upstream read timeouts are generous (Mars ~25s, APOD ~15s) and timeouts are not negative-cached, so a retry can still succeed. Slowness here is upstream, not your firewall.
 - **Caching:** every upstream call is cached in Redis (read-through), with per-resource TTLs (APOD 24h, upcoming launches ~5–10 min, Mars and past launches 24h, asteroids 6h).
-- **Rendering:** content routes are prerendered to static HTML (Angular SSG, `outputMode: static`) for fast first paint and SEO; live data loads client-side after hydration. Auth and dynamic routes (`/login`, `/register`, `/favourites`, `/apod/:date`, `/launches/:id`) render client-side, so a static host must serve `index.csr.html` as their SPA fallback. Don't add timers or `window`/`document` access in a component constructor without a browser guard (`isPlatformBrowser`/`afterNextRender`), or prerendering will fail.
+- **Rendering:** content routes are prerendered to static HTML (Angular SSG, `outputMode: static`) for fast first paint and SEO; live data loads client-side after hydration. Auth and dynamic routes (`/login`, `/register`, `/following`, `/favourites`, `/apod/:date`, `/launches/:id`) render client-side, so a static host must serve `index.csr.html` as their SPA fallback. Don't add timers or `window`/`document` access in a component constructor without a browser guard (`isPlatformBrowser`/`afterNextRender`), or prerendering will fail.
 
 ---
 
