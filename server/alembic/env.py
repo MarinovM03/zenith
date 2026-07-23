@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from alembic import context
 from app.core.config import get_settings
 from app.db.session import Base
-from app.models import favourite, followed_launch, user  # noqa: F401
+from app.models import favourite, followed_launch, followed_mission, user  # noqa: F401
 
 config = context.config
 
