@@ -21,7 +21,7 @@ def _raw(launch_id: str = "abc") -> dict[str, Any]:
         "net": "2026-07-01T12:00:00Z",
         "launch_service_provider": {"name": "SpaceX"},
         "rocket": {"configuration": {"name": "Falcon 9"}},
-        "mission": {"name": "Starlink", "description": "Sats."},
+        "mission": {"id": 1234, "name": "Starlink", "description": "Sats."},
         "pad": {"name": "SLC-40", "location": {"name": "Cape Canaveral"}},
         "image": "https://example.test/rocket.jpg",
         "vidURLs": [{"url": "https://youtube.test/live"}],
@@ -59,6 +59,7 @@ async def test_upcoming_happy_path(launch_client: AsyncClient) -> None:
     body = response.json()
     assert [item["id"] for item in body] == ["a", "b"]
     assert body[0]["rocket"] == "Falcon 9"
+    assert body[0]["mission_id"] == 1234
 
 
 @pytest.mark.asyncio

@@ -39,6 +39,7 @@ const LAUNCH: Launch = {
   net: new Date(Date.now() + 86_400_000).toISOString(),
   provider: 'SpaceX',
   rocket: 'Falcon 9',
+  mission_id: null,
   mission: null,
   mission_description: null,
   pad: null,

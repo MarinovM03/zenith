@@ -18,7 +18,7 @@ def _raw(launch_id: str = "abc", name: str = "Falcon 9 | Starlink") -> dict[str,
         "net": "2026-07-01T12:00:00Z",
         "launch_service_provider": {"name": "SpaceX"},
         "rocket": {"configuration": {"name": "Falcon 9"}},
-        "mission": {"name": "Starlink", "description": "Sats."},
+        "mission": {"id": 1234, "name": "Starlink", "description": "Sats."},
         "pad": {"name": "SLC-40", "location": {"name": "Cape Canaveral"}},
         "image": "https://example.test/rocket.jpg",
         "vidURLs": [{"url": "https://youtube.test/live"}],
@@ -57,6 +57,7 @@ async def test_upcoming_fetches_and_flattens(cache: JsonCache) -> None:
     assert [item.id for item in result] == ["a", "b"]
     assert result[0].provider == "SpaceX"
     assert result[0].rocket == "Falcon 9"
+    assert result[0].mission_id == 1234
     assert result[0].location == "Cape Canaveral"
     assert result[0].webcast_url == "https://youtube.test/live"
     assert "launch/upcoming" in seen["url"]

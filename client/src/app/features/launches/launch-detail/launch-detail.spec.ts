@@ -15,6 +15,7 @@ const LAUNCH: Launch = {
   net: new Date(Date.now() + 86_400_000).toISOString(),
   provider: 'SpaceX',
   rocket: 'Falcon 9',
+  mission_id: 1234,
   mission: 'Starlink Group 12',
   mission_description: 'A batch of satellites.',
   pad: 'SLC-40',

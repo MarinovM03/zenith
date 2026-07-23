@@ -17,6 +17,7 @@ function launch(id: string, name: string, net: string): Launch {
     net,
     provider: 'SpaceX',
     rocket: 'Falcon 9',
+    mission_id: 1234,
     mission: 'Starlink',
     mission_description: null,
     pad: 'SLC-40',

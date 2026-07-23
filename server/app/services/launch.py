@@ -44,6 +44,7 @@ def _normalise(raw: dict[str, Any]) -> dict[str, Any]:
         "net": raw["net"],
         "provider": provider.get("name"),
         "rocket": rocket.get("name"),
+        "mission_id": mission.get("id"),
         "mission": mission.get("name"),
         "mission_description": mission.get("description"),
         "pad": pad.get("name"),

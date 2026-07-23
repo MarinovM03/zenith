@@ -10,6 +10,7 @@ export interface Launch {
   net: string;
   provider: string | null;
   rocket: string | null;
+  mission_id: number | null;
   mission: string | null;
   mission_description: string | null;
   pad: string | null;

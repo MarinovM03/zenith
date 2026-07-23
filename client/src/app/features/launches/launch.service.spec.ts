@@ -13,6 +13,7 @@ function launch(id: string): Launch {
     net: '2026-07-01T12:00:00Z',
     provider: 'SpaceX',
     rocket: 'Falcon 9',
+    mission_id: 1234,
     mission: 'Starlink',
     mission_description: 'Sats.',
     pad: 'SLC-40',

@@ -15,6 +15,7 @@ class Launch(BaseModel):
     net: datetime
     provider: str | None = None
     rocket: str | None = None
+    mission_id: int | None = None
     mission: str | None = None
     mission_description: str | None = None
     pad: str | None = None
